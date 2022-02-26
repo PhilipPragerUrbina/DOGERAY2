@@ -7,87 +7,85 @@
     <Filter Include="Libraries">
       <UniqueIdentifier>{b6161436-ce56-4b5f-a100-942b53e77b19}</UniqueIdentifier>
     </Filter>
-    <Filter Include="imgui">
+    <Filter Include="Libraries\imgui">
       <UniqueIdentifier>{e1aa1a51-4b93-4f5c-8978-cfd6be51cdac}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="loader.hpp">
+    <ClInclude Include="classes\loader.hpp">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="tri.hpp">
+    <ClInclude Include="classes\vec3.hpp">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="vec3.hpp">
+    <ClInclude Include="classes\window.hpp">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="vertex.hpp">
-      <Filter>Classes</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
+    <ClInclude Include="libraries\json.hpp">
       <Filter>Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="stb_image_write.h">
+    <ClInclude Include="libraries\stb_image.h">
       <Filter>Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="tiny_gltf.h">
+    <ClInclude Include="libraries\stb_image_write.h">
       <Filter>Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="json.hpp">
+    <ClInclude Include="libraries\tiny_gltf.h">
       <Filter>Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="window.hpp">
+    <ClInclude Include="libraries\imgui\imconfig.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_impl_sdl.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_impl_sdlrenderer.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imgui_internal.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imstb_rectpack.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imstb_textedit.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="libraries\imgui\imstb_truetype.h">
+      <Filter>Libraries\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="classes\tri.hpp">
       <Filter>Classes</Filter>
     </ClInclude>
-    <ClInclude Include="imgui\imconfig.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_sdl.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_impl_sdlrenderer.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imgui_internal.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_rectpack.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_textedit.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imstb_truetype.h">
-      <Filter>imgui</Filter>
-    </ClInclude>
+    <ClInclude Include="classes\gui.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="imgui\imgui.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_demo.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui_demo.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_draw.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui_draw.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_sdl.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui_impl_sdl.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_impl_sdlrenderer.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui_impl_sdlrenderer.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_tables.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui_tables.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="imgui\imgui_widgets.cpp">
-      <Filter>imgui</Filter>
+    <ClCompile Include="libraries\imgui\imgui_widgets.cpp">
+      <Filter>Libraries\imgui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

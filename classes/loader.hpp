@@ -13,6 +13,7 @@
 #include "tri.hpp"
 
 using namespace std;
+//class for loading 3d files
 class loader {
 public:
     int vertexcount = 0;

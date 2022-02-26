@@ -12,7 +12,7 @@ public:
     int getW() { return width;}
     int getH() { return width; } 
     //constructor
-    window(int w, int h, std::string n) {
+    window(std::string n,int w, int h) {
         //constructor sets intitial dimensions.
         width = w;
         height = h;
