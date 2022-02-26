@@ -9,6 +9,4 @@ public:
 	//todo add intersection and bounding box functions
 
 
-
-
 };
