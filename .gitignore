@@ -11,6 +11,9 @@
 *.gch
 *.pch
 
+# Ignore the build directory
+/x64
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
