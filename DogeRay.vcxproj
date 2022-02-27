@@ -85,8 +85,14 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="classes\bvhnode.hpp" />
+    <ClInclude Include="classes\bvhtree.hpp" />
+    <ClInclude Include="classes\camera.hpp" />
+    <ClInclude Include="classes\config.hpp" />
     <ClInclude Include="classes\gui.hpp" />
     <ClInclude Include="classes\loader.hpp" />
+    <ClInclude Include="classes\ray.hpp" />
+    <ClInclude Include="classes\tracekernel.hpp" />
     <ClInclude Include="classes\tri.hpp" />
     <ClInclude Include="classes\vec3.hpp" />
     <ClInclude Include="classes\window.hpp" />

@@ -2,6 +2,8 @@
 #include "loader.hpp"
 #include "window.hpp"
 #include "gui.hpp"
+#include "tracekernel.hpp"
+#include "bvhtree.hpp"
 int main(int argc, char* args[])
 {
     //display title
@@ -24,15 +26,12 @@ int main(int argc, char* args[])
     loader file(filename);
     file.loadGLTF();
 
+    bvhtree tree(file.loadedtris);
+    tree.build();
+    int treesize = 0;
+    bvhnode* finishedtree = tree.getNodes(treesize);
 
 
-    //Test stuff. Moved later.
-    //print file vertices
-    for (tri i : file.loadedtris) {
-        i.verts[0].pos.print();
-        i.verts[1].pos.print();
-        i.verts[2].pos.print();
-    }
     //width and height
     int wi = 400;
     int h = 400;
@@ -45,21 +44,23 @@ int main(int argc, char* args[])
 
     //main loop
     int i = 0;
-    
+    config settings;
+    settings.cam.position = vec3(-2, 2, 1);
+    settings.cam.lookposition = vec3(0, 0, -1);
+    settings.cam.up = vec3(0, 1, 0);
+    settings.cam.calculate();
+
+    settings.h = h;
+    settings.w = wi;
+    tracekernel shader(settings);
     while (!g.exit) {
         //edit output data. Later will be moved to kernel
         data = win.getTex();
-        for (int x = 0; x < wi; x++) {
-            for (int y = 0; y < h; y++) {
-                int w = (y * wi + x) * 3;
-                data[w] = x;
-                data[w + 1] = y;
-                data[w + 2] = sin(i/100.0f)*200;
-            }
-        }
+        shader.render(data, settings);
+  
 
         //update 
-        g.update();
+        g.update(&settings);
         i++;
         win.update(data);
 

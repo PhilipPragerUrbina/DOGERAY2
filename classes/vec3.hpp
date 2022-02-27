@@ -1,19 +1,21 @@
 #pragma once
+//cuda runtime
+#include <cuda_runtime.h>
 //vec3 class to be used all over
 class vec3 {
 public:
 	//constructors
-    vec3(float x, float y, float z) {
+    __host__ __device__ vec3(float x, float y, float z) {
         values[0] = x;
         values[1] = y;
         values[2] = z;
     }
-    vec3(float x) {
+    __host__ __device__ vec3(float x) {
         values[0] = x;
         values[1] = x;
         values[2] = x;
     }
-    vec3() {
+    __host__ __device__ vec3() {
         values[0] = 0;
         values[1] = 0;
         values[2] = 0;
@@ -22,30 +24,42 @@ public:
 
     //operations on vector
     //returns dot product of current vector and other vector
-    float dot(vec3 b)
+    __host__ __device__ float dot(vec3 b)
     {
         return values[0] * b[0] + values[1] * b[1] + values[2] * b[2];
     }
+    //get cross product(right hand rule :)! )
+    __host__ __device__ vec3 cross(vec3 b)
+    {
+        return vec3(values[1] * b[2] - values[2] * b[1], values[2] * b[0] - values[0] * b[2], values[0] * b[1] - values[1] * b[0]);
+    }
     //returns normalized version of vector
-    vec3 normalized() {
+    __host__ __device__ vec3 normalized() {
         return *this * vec3(1.0f / sqrtf(this->dot(*this)));
+    }
+    //gets minimum and max values of two vectors
+    vec3 min(vec3 b) {
+        return vec3(fmin(values[0], b[0]), fmin(values[1], b[1]), fmin(values[2], b[2]));
+    }
+    vec3 max(vec3 b) {
+        return vec3(fmax(values[0], b[0]), fmax(values[1], b[1]), fmax(values[2], b[2]));
     }
 
     //operators
     //access x like vec3[0] for conveince. This is better thnat vec2.x since you can use loops
-    constexpr float& operator[](int x) {
+    __host__ __device__ constexpr float& operator[](int x) {
         return values[x];
     }
-    vec3 operator+(const vec3& b) {
+    __host__ __device__ vec3 operator+(const vec3& b) {
         return vec3(this->values[0] + b.values[0], this->values[1] + b.values[1], this->values[2] + b.values[2]);
     }
-    vec3 operator-(const vec3& b) {
+    __host__ __device__ vec3 operator-(const vec3& b) {
         return vec3(this->values[0] - b.values[0], this->values[1] - b.values[1], this->values[2] - b.values[2]);
     }
-    vec3 operator*(const vec3& b) {
+    __host__ __device__ vec3 operator*(const vec3& b) {
         return vec3(this->values[0] * b.values[0], this->values[1] * b.values[1], this->values[2] * b.values[2]);
     }
-    vec3 operator/(const vec3& b) {
+    __host__ __device__ vec3 operator/(const vec3& b) {
         return vec3(this->values[0] / b.values[0], this->values[1] / b.values[1], this->values[2] / b.values[2]);
     }
 

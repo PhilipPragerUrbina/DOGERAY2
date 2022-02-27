@@ -2,7 +2,7 @@
 //we are usign the SDL libary to handel windows
 #include <SDL.h>
 #include <iostream>
-#include <string>;
+#include <string>
 //class for creating and displaying windows
 class window {
 public:
