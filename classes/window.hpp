@@ -27,6 +27,7 @@ public:
             SDLrenderer = SDL_CreateRenderer(SDLwindow, 0, 0);
             //create texture
             SDLtexture = SDL_CreateTexture(SDLrenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, width, height);
+            std::cout << "Window inititialized succesfully \n";
         }
         else {
             //error intitizlaing SDL

@@ -4,6 +4,9 @@
 //vec3 class to be used all over
 class vec3 {
 public:
+    //public for editing by imgui
+    float values[3];
+
 	//constructors
     __host__ __device__ vec3(float x, float y, float z) {
         values[0] = x;
@@ -68,10 +71,7 @@ public:
     void print() {
         std::cout << "(" << values[0] << "," << values[1] << "," << values[2] << ")" << std::endl;
     }
-  
-
-private:
-    float values[3];
+ 
 };
 
 //cout overload fr printing vec3 c++ way

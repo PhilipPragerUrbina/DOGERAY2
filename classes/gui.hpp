@@ -38,6 +38,7 @@ public:
         // set SDL as backend
         ImGui_ImplSDL2_InitForSDLRenderer(GUIwindow, GUIrenderer);
         ImGui_ImplSDLRenderer_Init(GUIrenderer);
+        std::cout << "GUI inititialized succesfully \n";
     }
     //TODO input config class as reference. Edit config with events and gui.
     void update(config* settings) {
@@ -49,7 +50,7 @@ public:
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT)
                 exit = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(GUIwindow))
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
                 exit = true;
             //other events. 
             //if this class is re-used. Just replace this whith your events.
@@ -70,9 +71,10 @@ public:
         ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
       //  ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
       //  ImGui::Checkbox("Another Window", &show_another_window);
-       //  ImGui::SliderFloat("speed", &settings->i, 100.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-         
+        ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
+        ImGui::DragFloat3("campos", settings->cam.position.values);
+        settings->cam.calculate();
          ImGui::ColorEdit3("clear color", (float*)&backgroundcolor); // Edit 3 floats representing a color
          if (ImGui::Button("Button")) {
              counter++;

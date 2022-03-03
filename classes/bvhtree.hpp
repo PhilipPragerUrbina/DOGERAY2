@@ -1,7 +1,56 @@
 #pragma once
-#include "bvhnode.hpp"
 #include <vector>
 #include <algorithm>
+#include "tri.hpp"
+
+//bvhnode struct
+struct bvhnode {
+public:
+	//boundning box of node
+	boundingbox box;
+	// is a leaf node
+	bool isleaf = false;
+	//traingle object it contains if it is a leaf node
+	tri traingle;
+	//children
+	int indexofchilda;
+	int indexofchildb;
+	//links
+	int hitnode;
+	int missnode;
+	//axis aligned bounding box (inline since it is called a huge number of times)
+	inline __device__ bool testbox(ray curray) {
+		//based on pixar AABB function
+		//tmin and tmax still need to be tweaked for max performance
+		float t_min = (box.min[0] - curray.origin[0]) / curray.dir[0];
+		float t_max = (box.max[0] - curray.origin[0]) / curray.dir[0];
+		//t_min must be less than max
+		if (t_min > t_max) {
+			float temp = t_max;
+			t_max = t_min;
+			t_min = temp;
+		}
+		for (int a = 0; a < 3; a++) {
+			auto invD = 1.0f / curray.dir[a];
+			auto t0 = (box.min[a] - curray.origin[a]) * invD;
+			auto t1 = (box.max[a] - curray.origin[a]) * invD;
+			if (invD < 0.0f) {
+				//CUDA does nat support std::swap
+				float temp = t1;
+				t1 = t0;
+				t0 = temp;
+			}
+			t_min = t0 > t_min ? t0 : t_min;
+			t_max = t1 < t_max ? t1 : t_max;
+			if (t_max <= t_min) {
+				return false;
+			}
+		}
+		return true;
+	}
+};
+
+
 //helper fucntioons for bvh building
 //function for computing the boudning box of multiple objects
 boundingbox arrayboundingbox(std::vector<tri> in) {
@@ -10,7 +59,7 @@ boundingbox arrayboundingbox(std::vector<tri> in) {
 	for (tri object : in) {
 		boundingbox objectboundingbox = object.getboundingbox();
 		out.min = out.min.min(objectboundingbox.min);
-		out.max = out.max.min(objectboundingbox.max);
+		out.max = out.max.max(objectboundingbox.max);
 	}
 	return out;
 }
@@ -57,41 +106,44 @@ public:
 		traingles = in;
 	}
 	//build bvh tree
-	void build(){
+	void build() {
 		//split
 		std::cout << "building BVH \n";
 		recursivesplit(traingles);
 		//link
-		createlinks();
+		createlinks(0, -1);
 		std::cout << "BVH built! \n";
 	}
 	//copy final nodes to array
 	//set size as well
 	bvhnode* getNodes(int& size) {
-		size =  nodes.size();
+		size = nodes.size();
 		return nodes.data();
 	}
 private:
-    //store triangles to be sorted into tree
+	//store triangles to be sorted into tree
 	std::vector<tri> traingles;
 	//array of nodes to be put on gpu later
 	std::vector<bvhnode> nodes;
 	//recusibly split bvh into nodes until there are elaf nodes with one triangle
-	void recursivesplit(std::vector<tri> remaining) {
+	int recursivesplit(std::vector<tri> remaining) {
 		//node is created on the stack since it will be stored on an array later and passed to the gpu
 		bvhnode parent;
+		//store index of current node. The node has node been pushed yet so the fact that .size() returns an index 1 bigger is good
+		int parentindex = nodes.size();
 		//create boudning box of node
 		parent.box = arrayboundingbox(remaining);
 		//check if leaf
-		if (remaining.size() <= 1) {
+		if (remaining.size() == 1) {
+			//set as leaf
 			parent.isleaf = true;
+			//add object to node
 			parent.traingle = remaining[0];
+			//push and return id
 			nodes.push_back(parent);
-			return;
+			return parentindex;
 		}
-		//set children indexes. Nodes.size() is one alrger than the actual last index. This is good since we have no pushed the current node yet.
-		parent.indexofchilda = nodes.size();
-		parent.indexofchildb = nodes.size()+1;
+
 		//push current node
 		nodes.push_back(parent);
 		//get axis with most differnce
@@ -102,7 +154,7 @@ private:
 		int z = getaxisdeviation(remaining, 0);
 		if (z > x && z > y) { axis = 2; }
 		//sort current triangles based on axis
-		switch (axis){
+		switch (axis) {
 		case 0:
 			//x axis sort
 			std::sort(remaining.begin(), remaining.end(), boundingboxcomparex);
@@ -128,13 +180,32 @@ private:
 				b.push_back(remaining[i]);
 			}
 		}
-		//proccess children nodes
-		recursivesplit(a);
-		recursivesplit(b);
+		//proccess children nodes 
+		//set the ids where the children are
+		nodes[parentindex].indexofchilda = recursivesplit(a);
+		nodes[parentindex].indexofchildb = recursivesplit(b);
+		//return id of this node
+		return parentindex;
 	}
 	//create links for stackless bvh traversal later
-	void createlinks() {
-
+	void createlinks(int current, int right) {
+		if (nodes[current].isleaf) {
+			//is at end. hit or miss means go to up right node in tree
+			nodes[current].hitnode = right;
+			nodes[current].missnode = right;
+		}
+		else {
+			//get children ids
+			int child1 = nodes[current].indexofchilda;
+			int child2 = nodes[current].indexofchildb;
+			//hit means go to child
+			nodes[current].hitnode = child1;
+			//miss means go to up right node
+			nodes[current].missnode = right;
+			//reucrisvley create links
+			createlinks(child1, child2);
+			createlinks(child2, right);
+		}
 	}
 
 };

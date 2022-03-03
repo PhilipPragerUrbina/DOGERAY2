@@ -23,7 +23,8 @@ int main(int argc, char* args[])
     std::string filename = "defualt.gltf";
     if (argc > 1)  filename = args[1];
     //load file
-    loader file(filename);
+    config settings;
+    loader file(filename, &settings);
     file.loadGLTF();
 
     bvhtree tree(file.loadedtris);
@@ -44,15 +45,14 @@ int main(int argc, char* args[])
 
     //main loop
     int i = 0;
-    config settings;
-    settings.cam.position = vec3(-2, 2, 1);
-    settings.cam.lookposition = vec3(0, 0, -1);
-    settings.cam.up = vec3(0, 1, 0);
+   
+    settings.cam.position = vec3(-6, 0, 1);
+    settings.cam.lookposition = vec3(0, 0, 0);
     settings.cam.calculate();
-
+    settings.bvhsize = treesize;
     settings.h = h;
     settings.w = wi;
-    tracekernel shader(settings);
+    tracekernel shader(settings, finishedtree);
     while (!g.exit) {
         //edit output data. Later will be moved to kernel
         data = win.getTex();

@@ -1,16 +1,50 @@
 #pragma once
 #include "config.hpp"
+#include "bvhtree.hpp"
+#include <chrono>
 #include <iostream>
 
+//comment and uncomment this to print render time to console. Normally disabled for max performance(les reialble IMGUI counter can be used instead),but is usful for testing
+#define recordspeed
+
+//seperate ray color fucntion to avoid circualr dependency
+__device__ vec3 raycolor(ray curray, bvhnode* tree, int size, config settings) {
+	vec3 color = vec3(0);
+	
+	//stackless bvh traversal from paper
+	int box_index = 0;
+
+	while (box_index != -1) {
+		bool hit = tree[box_index].testbox(curray);
+		if (hit) {
+			//bvh preview
+			color = color + vec3(settings.bvhstrength);
+			box_index = tree[box_index].hitnode; // hit link
+		}
+		else {
+			box_index = tree[box_index].missnode; // miss link
+		}
+	}
+	color = vec3(1) - (vec3(1.0f) / color);
+	return color;
+	//vec3 unit_direction = dir.normalized();
+	//float t = 0.5 * (unit_direction[1] + 1.0);
+	//return vec3(1.0 - t) * vec3(1.0, 1.0, 1.0) + vec3(t) * vec3(0.5, 0.7, 1.0);
+}
 //the actual ray tarce kernel. It cannot be a member function
-__global__ void raytracekernel(uint8_t* image, config settings) {
+__global__ void raytracekernel(uint8_t* image, config settings, bvhnode* tree) {
+	//get indexes 
+	//TODO optimize indexes
 	int x = blockIdx.x * blockDim.x + threadIdx.x;
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
 	int w = (y * settings.w + x) * 3;
 	float u = float(x) / (settings.w - 1);
 	float v = float(y) / (settings.h - 1);
+	//gnerate ray
 	ray currentray = settings.cam.getray(u, v);
-	vec3 color = currentray.raycolor();
+	//trace ray
+	vec3 color = raycolor(currentray,tree, settings.bvhsize, settings);
+	//set image color
 	image[w] = color[0]*255;
 	image[w + 1] = color[1]*255;
 	image[w + 2] = color[2]*255;
@@ -21,8 +55,10 @@ class tracekernel {
 public:
 	//status for error handling
 	cudaError_t status;
+	//threads per block. 
+	dim3 threadsPerBlock;
 	//constructor allocates memory and does setup
-	tracekernel(config settings) {
+	tracekernel(config settings, bvhnode* geometry) {
 		//setup device
 		cudaGetDevice(&device);
 		threadsPerBlock = dim3(8, 8);
@@ -31,33 +67,58 @@ public:
 		imagesize = settings.h * settings.w * 3 * sizeof(uint8_t);
 		status = cudaMalloc(&device_image, imagesize);
 		if (status != cudaSuccess) { std::cerr << "error creating output image on device \n"; return; }
-		
-
+		size_t geosize = sizeof(bvhnode) * settings.bvhsize;
+		status = cudaMalloc(&device_geometry, geosize);
+		if (status != cudaSuccess) { std::cerr << "error allocating geometry on device \n"; return; }
+		std::cout << "GPU memory succesfully allocated \n";
+		//copy over geometry
+		status = cudaMemcpy(device_geometry, geometry, geosize, cudaMemcpyHostToDevice); 
+		if (status != cudaSuccess) { std::cerr << "error copying geometry on device \n"; return; }
+		std::cout << "GPU memory succesfully copied over \n";
 	}
 	//render out an image
 	void render(uint8_t* image, config settings) {
+		#ifdef recordspeed
+		begin = std::chrono::steady_clock::now();
+		#endif
+
 		//run kenrel
-		raytracekernel << <numBlocks, threadsPerBlock >> > (device_image, settings);
+		raytracekernel << <numBlocks, threadsPerBlock >> > (device_image, settings, device_geometry);
 		//copy to host
 		cudaMemcpy(image, device_image, imagesize, cudaMemcpyDeviceToHost);
+		#ifdef recordspeed
+		end = std::chrono::steady_clock::now();
+		rendertime();
+		#endif
 	}
 	~tracekernel() {
 		//free memory
 		cudaFree(device_image);
+		cudaFree(device_geometry);
 	}
 	//check for errors afetr kenrel launch. Not doing very time for performance.
 	void errorcheck() {
 		status = cudaGetLastError();
 		if (status != cudaSuccess){std::cerr << "kernel launch error: " << cudaGetErrorString(status) << "\n";}
 	}
+	//display render time
+	void rendertime() {
+		std::cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+	}
 private:
-	//threads per block. 
-	dim3 threadsPerBlock;
+	//number of blocks,calculated at runtime
 	dim3 numBlocks;
-	//cuda devic number
+	//cuda device number
 	int device = -1;
 	//image data
 	size_t imagesize;
 	uint8_t* device_image = 0;
+	//geometry data
+	bvhnode* device_geometry = 0;
+
+	//for profiling
+	std::chrono::steady_clock::time_point begin;
+	std::chrono::steady_clock::time_point end;
+
 
 };

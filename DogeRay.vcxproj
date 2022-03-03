@@ -85,7 +85,6 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="classes\bvhnode.hpp" />
     <ClInclude Include="classes\bvhtree.hpp" />
     <ClInclude Include="classes\camera.hpp" />
     <ClInclude Include="classes\config.hpp" />

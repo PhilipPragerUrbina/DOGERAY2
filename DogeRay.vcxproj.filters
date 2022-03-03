@@ -64,7 +64,6 @@
     <ClInclude Include="classes\config.hpp" />
     <ClInclude Include="classes\tracekernel.hpp" />
     <ClInclude Include="classes\bvhtree.hpp" />
-    <ClInclude Include="classes\bvhnode.hpp" />
     <ClInclude Include="classes\camera.hpp" />
     <ClInclude Include="classes\ray.hpp" />
   </ItemGroup>
