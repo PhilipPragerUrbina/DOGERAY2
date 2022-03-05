@@ -12,5 +12,7 @@ public:
 	float bvhstrength = 0.01;
 	//camera
 	camera cam;
+	//should window save image
+	bool saveimage = false;
 
 };

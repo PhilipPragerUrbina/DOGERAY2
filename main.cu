@@ -24,34 +24,40 @@ int main(int argc, char* args[])
     if (argc > 1)  filename = args[1];
     //load file
     config settings;
+    settings.cam.position = vec3(-600, 0, 1);
+    settings.cam.lookposition = vec3(0, 0, 0);
+    settings.cam.up = vec3(0, 1, 0);
+  
+
     loader file(filename, &settings);
     file.loadGLTF();
+
+   
+    settings.cam.calculate();
 
     bvhtree tree(file.loadedtris);
     tree.build();
     int treesize = 0;
     bvhnode* finishedtree = tree.getNodes(treesize);
-
+    settings.bvhsize = treesize;
 
     //width and height
-    int wi = 400;
-    int h = 400;
+    int wi = 1280;
+    int h = 720;
+    settings.cam.calcaspectratio(wi, h);
     //create window and gui
     gui g("DOGEGUI",200,200);
     window win("PAIN",wi, h);
-   
+  
+    settings.h = h;
+    settings.w = wi;
     //output data
     uint8_t* data; 
 
     //main loop
     int i = 0;
    
-    settings.cam.position = vec3(-6, 0, 1);
-    settings.cam.lookposition = vec3(0, 0, 0);
-    settings.cam.calculate();
-    settings.bvhsize = treesize;
-    settings.h = h;
-    settings.w = wi;
+   
     tracekernel shader(settings, finishedtree);
     while (!g.exit) {
         //edit output data. Later will be moved to kernel
@@ -63,6 +69,11 @@ int main(int argc, char* args[])
         g.update(&settings);
         i++;
         win.update(data);
+
+        if (settings.saveimage) {
+            win.saveimage(filename);
+            settings.saveimage = false;
+        }
 
       
     }

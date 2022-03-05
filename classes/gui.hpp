@@ -66,21 +66,21 @@ public:
         //show window contents
         //if this class is re-used. Just replace this whith your gui.
         static float f = 0.0f;
-        static int counter = 0;
+
         ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
         ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
       //  ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
       //  ImGui::Checkbox("Another Window", &show_another_window);
-        ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f,0.5f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
         ImGui::DragFloat3("campos", settings->cam.position.values);
         settings->cam.calculate();
          ImGui::ColorEdit3("clear color", (float*)&backgroundcolor); // Edit 3 floats representing a color
-         if (ImGui::Button("Button")) {
-             counter++;
+         if (ImGui::Button("Save BMP")) {
+             settings->saveimage = true;
          }// Buttons return true when clicked (most widgets return true when edited/activated)    
          ImGui::SameLine();
-         ImGui::Text("counter = %d", counter);
+         ImGui::Text("counter = %d", 0);
          ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
          ImGui::End();
         

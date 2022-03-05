@@ -53,6 +53,16 @@ public:
         SDL_LockTexture(SDLtexture, NULL, (void**)&data, &pitch);
         return data;
     }
+    //save bmp screenshot
+    void saveimage(string filename) {
+        //create surface
+        SDL_Surface* tempsurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
+        //transfer pixels to surface
+        SDL_RenderReadPixels(SDLrenderer, NULL, SDL_PIXELFORMAT_ARGB8888, tempsurface->pixels, tempsurface->pitch);
+        SDL_SaveBMP(tempsurface, (filename + ".bmp").c_str());
+        //delete sruface
+        SDL_FreeSurface(tempsurface);
+    }
     //clean up SDL
     ~window() {
         SDL_DestroyTexture(SDLtexture);

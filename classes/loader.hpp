@@ -159,7 +159,12 @@ private:
     //traverse gltf nodes
     void gltfnode(tinygltf::Model& model,
         tinygltf::Node& node, vec3 pos) {
-     
+        
+        if (node.camera > 0) {
+            settings->cam.position = pos;
+            cout << "camera found \n";
+        }
+    
         //local to world coordinates
         if (node.translation.size() > 0) {
             pos = pos + vec3(node.translation[0], node.translation[1], node.translation[2]);
