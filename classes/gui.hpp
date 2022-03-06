@@ -67,20 +67,33 @@ public:
         //if this class is re-used. Just replace this whith your gui.
         static float f = 0.0f;
 
-        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("GUI");                          // Create a window called "Hello, world!" and append into it.
         ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
       //  ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
       //  ImGui::Checkbox("Another Window", &show_another_window);
+     
         ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f,0.5f);            // Edit 1 float using a slider from 0.0f to 1.0f
 
+        vec3 before = settings->cam.position;
         ImGui::DragFloat3("campos", settings->cam.position.values);
+        //temporary update solution
+        vec3 after = settings->cam.position;
+        if (before[0] != after[0] || before[1] != after[1] || before[2] != after[2]) {
+            settings->samples = 0;
+        }
         settings->cam.calculate();
          ImGui::ColorEdit3("clear color", (float*)&backgroundcolor); // Edit 3 floats representing a color
          if (ImGui::Button("Save BMP")) {
              settings->saveimage = true;
-         }// Buttons return true when clicked (most widgets return true when edited/activated)    
+         }
+       
+         if (ImGui::Button("update")) {
+             settings->samples = 0;
+         }
+
+         // Buttons return true when clicked (most widgets return true when edited/activated)    
          ImGui::SameLine();
-         ImGui::Text("counter = %d", 0);
+         ImGui::Text("samples = %d", settings->samples);
          ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
          ImGui::End();
         

@@ -15,4 +15,7 @@ public:
 	//should window save image
 	bool saveimage = false;
 
+
+	//# of samaples taken
+	int samples = 0;
 };

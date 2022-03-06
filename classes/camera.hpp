@@ -2,6 +2,7 @@
 #include "ray.hpp"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <curand_kernel.h>
 //camera class. based on ray tracing in one weekend
 class camera {
 public:

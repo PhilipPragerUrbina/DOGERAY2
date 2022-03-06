@@ -38,7 +38,20 @@ public:
     }
     //returns normalized version of vector
     __host__ __device__ vec3 normalized() {
-        return *this * vec3(1.0f / sqrtf(this->dot(*this)));
+        return *this * vec3(1.0f / length());
+    }
+    //length
+    __host__ __device__ float length() {
+        return sqrtf(this->dot(*this));
+    }
+    //clamp vector between two values
+    __host__ __device__ vec3 clamped(float min, float max) {
+        vec3 out = *this;
+        for (int i = 0; i < 3; i++) {
+            if (out[i] < min) out[i] = min;
+            else if (out[i] > max) out[i] = max;
+       }
+        return out;
     }
     //gets minimum and max values of two vectors
     vec3 min(vec3 b) {

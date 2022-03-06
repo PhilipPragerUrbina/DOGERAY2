@@ -95,6 +95,7 @@
     <ClInclude Include="classes\tri.hpp" />
     <ClInclude Include="classes\vec3.hpp" />
     <ClInclude Include="classes\window.hpp" />
+    <ClInclude Include="classes\world.hpp" />
     <ClInclude Include="libraries\imgui\imconfig.h" />
     <ClInclude Include="libraries\imgui\imgui.h" />
     <ClInclude Include="libraries\imgui\imgui_impl_sdl.h" />

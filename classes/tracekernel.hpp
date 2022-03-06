@@ -1,74 +1,43 @@
 #pragma once
-#include "config.hpp"
-#include "bvhtree.hpp"
+#include "world.hpp"
 #include <chrono>
 #include <iostream>
 
 //comment and uncomment this to print render time to console. Normally disabled for max performance(les reialble IMGUI counter can be used instead),but is usful for testing
 //#define recordspeed
-//seperate ray color fucntion to avoid circualr dependency
-__device__ vec3 raycolor(ray curray, bvhnode* tree, config settings) {
-	float dist = 100000;
-	vec3 uv;
-	tri triangle;
-	//stackless bvh traversal from paper
-	int box_index = 0;
-	while (box_index != -1) {
-		bvhnode currentnode = tree[box_index];
-		bool hit = currentnode.testbox(curray);
-		if (hit) {
-			//bvh preview
-			//color = color + vec3(settings.bvhstrength);
-			box_index = currentnode.hitnode; // hit link
-			if (currentnode.isleaf) {
-				//box_index = -1;
-				float tempdist;
-				vec3 tempuv;
-				//if hit
-				if (currentnode.traingle.hit(curray, tempdist,tempuv)) {
-					if (tempdist<dist) {
-						dist = tempdist;
-						triangle = currentnode.traingle;
-						uv = tempuv;
-					}
-				}
-			}
-		}
-		else {
-			box_index = currentnode.missnode; // miss link
-		}
-	}
 
-	vec3 color = vec3(0);
-	if (dist < 10000) {
-		//color = vec3(dist* settings.bvhstrength);
-		color = (vec3(1 - uv[0] - uv[1]) * triangle.verts[0].norm )+ (vec3(uv[0]) * triangle.verts[1].norm) + (vec3(uv[1]) * triangle.verts[2].norm);
-		//color = vec3(uv[0], uv[1], 1 - uv[0] - uv[1]);
-		//color = triangle.verts[0].pos.normalized();
-	}
-	//color = vec3(1) - (vec3(1.0f) / color);
-	return color;
-	//vec3 unit_direction = dir.normalized();
-	//float t = 0.5 * (unit_direction[1] + 1.0);
-	//return vec3(1.0 - t) * vec3(1.0, 1.0, 1.0) + vec3(t) * vec3(0.5, 0.7, 1.0);
-}
 //the actual ray tarce kernel. It cannot be a member function
-__global__ void raytracekernel(uint8_t* image, config settings, bvhnode* tree) {
+__global__ void raytracekernel(uint8_t* image,world scene) {
 	//get indexes 
 	//TODO optimize indexes
 	int x = blockIdx.x * blockDim.x + threadIdx.x;
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
-	int w = (y * settings.w + x) * 3;
-	float u = float(x) / (settings.w - 1);
-	float v = float(y) / (settings.h - 1);
+	int w = (y * scene.settings.w + x) * 3;
+	//set up curand withs eed
+	curandState seed;
+	curand_init((unsigned long long)clock() + (x + y * blockDim.x * gridDim.x), 0, 0, &seed);
+	//create randomized uv coords of image
+	float u = (x + curand_uniform_double(&seed)) / (scene.settings.w - 1);
+	float v = (y + curand_uniform_double(&seed))/ (scene.settings.h - 1);
+	
+
 	//gnerate ray
-	ray currentray = settings.cam.getray(u, v);
+	ray currentray = scene.settings.cam.getray(u, v);
 	//trace ray
-	vec3 color = raycolor(currentray,tree, settings);
-	//set image color
-	image[w] = color[0]*255;
-	image[w + 1] = color[1]*255;
-image[w + 2] = color[2]*255;
+	vec3 color = scene.color(currentray,&seed);
+	//set image color if first sample(mult by 255 since color are currently in randge of 0-1)
+	if (scene.settings.samples == 0) {
+		image[w    ] = color[0] * 255;
+		image[w + 1] = color[1] * 255;
+		image[w + 2] = color[2] * 255;
+	}
+	else {
+		//if not first sample, contenusly update average of output
+		//we add to the average rather than calculating it in order to avoid having divide on the host side
+		image[w    ] = (scene.settings.samples * image[w    ] + (color[0] * 255)) / (scene.settings.samples + 1);
+		image[w + 1] = (scene.settings.samples * image[w + 1] + (color[1] * 255)) / (scene.settings.samples + 1);
+		image[w + 2] = (scene.settings.samples * image[w + 2] + (color[2] * 255)) / (scene.settings.samples + 1);
+	}
 }
 
 //class for the actual CUDA ray tracer
@@ -96,16 +65,16 @@ public:
 		status = cudaMemcpy(device_geometry, geometry, geosize, cudaMemcpyHostToDevice); 
 		if (status != cudaSuccess) { std::cerr << "error copying geometry on device \n"; return; }
 		std::cout << "GPU memory succesfully copied over \n";
-	//status = cudaMemPrefetchAsync(device_geometry,geosize, device);
-		//if (status != cudaSuccess) { std::cerr << "error prefetching geometry on device \n"; return; }
 	}
 	//render out an image
 	void render(uint8_t* image, config settings) {
 		#ifdef recordspeed
 		begin = std::chrono::steady_clock::now();
 		#endif
+		//create scene object
+		world scene(device_geometry, settings);
 		//run kenrel
-		raytracekernel << <numBlocks, threadsPerBlock >> > (device_image, settings, device_geometry);
+		raytracekernel << <numBlocks, threadsPerBlock >> > (device_image, scene);
 		//copy to host
 		cudaMemcpy(image, device_image, imagesize, cudaMemcpyDeviceToHost);
 		#ifdef recordspeed

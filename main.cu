@@ -55,21 +55,24 @@ int main(int argc, char* args[])
     uint8_t* data; 
 
     //main loop
-    int i = 0;
-   
-   
     tracekernel shader(settings, finishedtree);
     while (!g.exit) {
-        //edit output data. Later will be moved to kernel
-        data = win.getTex();
-        shader.render(data, settings);
   
-
-        //update 
+        
+        //update settings with gui input
         g.update(&settings);
-        i++;
+       
+
+        //get winbdow data to copy to
+        data = win.getTex();
+        //render frame
+        shader.render(data, settings);
+        //increment samples
+        settings.samples++;
+        //update window
         win.update(data);
 
+        //save render if specified in config from gui
         if (settings.saveimage) {
             win.saveimage(filename);
             settings.saveimage = false;

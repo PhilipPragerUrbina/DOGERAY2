@@ -66,6 +66,7 @@
     <ClInclude Include="classes\bvhtree.hpp" />
     <ClInclude Include="classes\camera.hpp" />
     <ClInclude Include="classes\ray.hpp" />
+    <ClInclude Include="classes\world.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />
