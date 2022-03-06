@@ -67,6 +67,7 @@
     <ClInclude Include="classes\camera.hpp" />
     <ClInclude Include="classes\ray.hpp" />
     <ClInclude Include="classes\world.hpp" />
+    <ClInclude Include="classes\program.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />

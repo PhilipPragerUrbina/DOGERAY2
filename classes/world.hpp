@@ -4,7 +4,7 @@
 //gpu random sphere vec3 function for matirals
 __device__ vec3 randomvec3insphere(curandState* seed) {
 	while (true) {
-		vec3 p = vec3((curand_uniform_double(seed) * 2) - 1, (curand_uniform_double(seed) * 2) - 1, (curand_uniform_double(seed) * 2) - 1);
+		vec3 p = vec3((curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f);
 		if (pow(p.length(), 2.0f) >= 1) continue;
 		return p;
 	}
@@ -52,7 +52,7 @@ public:
 				 return curray.attenuation * (vec3(1.0 - t) * vec3(1.0, 1.0, 1.0) + vec3(t) * vec3(0.5, 0.7, 1.0));
 			 }
 		 }
-		 return  curray.attenuation;
+		 return  vec3(0);
 		 
 	}
 
@@ -109,7 +109,6 @@ private:
 		bool isfront = curray.dir.dot(normal) < 0;
 		vec3 newnorm = isfront ? normal : normal * vec3(-1);
 		return newnorm;
-
 	}
 };
 //leftover color modes

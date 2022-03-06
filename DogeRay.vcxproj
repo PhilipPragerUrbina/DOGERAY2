@@ -90,6 +90,7 @@
     <ClInclude Include="classes\config.hpp" />
     <ClInclude Include="classes\gui.hpp" />
     <ClInclude Include="classes\loader.hpp" />
+    <ClInclude Include="classes\program.hpp" />
     <ClInclude Include="classes\ray.hpp" />
     <ClInclude Include="classes\tracekernel.hpp" />
     <ClInclude Include="classes\tri.hpp" />
