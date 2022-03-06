@@ -78,6 +78,10 @@ public:
     __host__ __device__ vec3 operator/(const vec3& b) {
         return vec3(this->values[0] / b.values[0], this->values[1] / b.values[1], this->values[2] / b.values[2]);
     }
+    //reflect vector ober other vector(normal)
+    __host__ __device__ vec3 reflected(vec3 b) {
+        return *this - vec3(2.0f * this->dot(b)) * b;
+    }
 
 
     //print vec3 to console for debugging

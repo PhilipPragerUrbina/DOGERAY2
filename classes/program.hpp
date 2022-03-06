@@ -66,8 +66,8 @@ public:
         settings.cam.calcaspectratio(width, height);
         settings.cam.calculate();
         //create window and gui objects
-        Gui = new gui("DOGEGUI", 200, 200);
-        win = new window("PAIN", width, height);
+        Gui = new gui("DOGERAY-gui", 200, 200);
+        win = new window("DOGERAY2", width, height);
         //set configuration dimenasions
         settings.h = height;
         settings.w = width;

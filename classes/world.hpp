@@ -35,15 +35,16 @@ public:
 				 //calculate additional hit information
 				 vec3 hitpoint = curray.at(distance);
 				 vec3 normal = getnormal(curray) ;
-				 vec3 target = hitpoint + normal + randomvec3insphere(seed);
 				 //mat properties
-				 vec3 matcolor = vec3(0.5f, 0.5f,0.5f);
+				 vec3 matcolor = vec3(0.8f, 0.8f,0.8f);
 				 //calculate direction
+				// vec3 target = hitpoint + normal + randomvec3insphere(seed);
+				// curray.dir = (target - hitpoint).normalized();
+				 vec3 reflected = curray.dir.normalized().reflected(normal);
+				 curray.dir = reflected + vec3(settings.bvhstrength) * randomvec3insphere(seed);
 				 //update ray
 				 curray.origin = hitpoint;
-				 curray.dir = (target - hitpoint).normalized();
-				 curray.attenuation = curray.attenuation * matcolor;
-				 
+				 curray.attenuation = curray.attenuation * matcolor;	 
 			 }
 			 else {
 				 //ray misses
