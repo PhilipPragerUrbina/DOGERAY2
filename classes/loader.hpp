@@ -15,42 +15,48 @@
 
 using namespace std;
 //class for loading 3d files
-class loader {
+class Loader {
 public:
+
     int vertexcount = 0;
 	//set filename on creation of class
 	string filename = "";
     //store triangles afetr they have been loaded
-    vector<tri> loadedtris;
-	loader(string name, config* editablesettings) {
+    vector<Tri> loadedtris;
+
+	Loader(string name, config* editablesettings) {
         settings = editablesettings;
         filename = name;
         //set format specific settings
         settings->cam.up = vec3(0, -1, 0);
 		cout << "Loading file: " << filename << "\n";
 	}
+
 	//load GLTF file
 	void loadGLTF() {
         //create model for library
         tinygltf::Model model = loadgltfmodel(filename);
         //recusivley load it into array
         creategltfmodel(model);
+        //print info
         if (containsnontris) { cout << "warning: Model may contain non tris \n"; }
         cout << "GLTF model parsed succesfully! \n";
         cout << loadedtris.size() << " tris \n";
         cout << vertexcount << " verts \n";
 	};
+
 private:
     config* settings;
     bool containsnontris = false;
+
     //use library to open up model
     tinygltf::Model loadgltfmodel(string filename) {
         tinygltf::TinyGLTF gltfloader;
         tinygltf::Model model;
         string err;
         string warn;
-
         bool res;
+
         //check if binary gltf file(GLB)
         if (filename.substr(filename.find_last_of(".") + 1) == "glb") {
             res = gltfloader.LoadBinaryFromFile(&model, &err, &warn, filename);
@@ -72,6 +78,7 @@ private:
         else {
             cout << "GLTF model loaded succesfully \n";
         }
+
         return model;
     }
 
@@ -79,7 +86,8 @@ private:
     void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, vec3 pos) {
         //for each tri
         for (size_t i = 0; i < mesh.primitives.size(); ++i) {
-            //get indecis for correct number of tris
+
+            //get indeces for correct number of tris
             tinygltf::Accessor indexAccessor = model.accessors[mesh.primitives[i].indices];
             tinygltf::BufferView& ibufferView = model.bufferViews[indexAccessor.bufferView];
             tinygltf::Buffer& ibuffer = model.buffers[ibufferView.buffer];
@@ -99,7 +107,6 @@ private:
             }else{
                 indexes = reinterpret_cast<const int*>(&ibuffer.data[ibufferView.byteOffset + indexAccessor.byteOffset]);
             }
-            
 
             //get tri postitons
             tinygltf::Accessor& accessor = model.accessors[mesh.primitives[i].attributes["POSITION"]];
@@ -121,7 +128,7 @@ private:
           
             //triange index. Which vertex out of 3 is it.
             int e = 0;
-            tri newtri;
+            Tri newtri;
             //update vertex count
             vertexcount += accessor.count;
         
@@ -135,6 +142,7 @@ private:
                 else {
                     index = indexes[i];
                 }
+
                 //set pos
                 newtri.verts[e].pos = vec3(positions[index * 3 + 0]+pos[0], positions[index * 3 + 1] + pos[0], positions[index * 3 + 2] + pos[0]);
                 //set norm 
@@ -142,7 +150,7 @@ private:
                 //set tex 
                 //TODO set texture and amtrial. Potentially could be stored in tex.z
                 newtri.verts[e].tex = vec3(tex[index * 3 + 0], tex[index * 3 + 1], 0);
-   
+
                 e++;
                 if (e == 3) {
                     //finsished triangle. Submit to all triangles
@@ -164,22 +172,25 @@ private:
             settings->cam.position = pos;
             cout << "camera found \n";
         }
-    
+
         //local to world coordinates
         if (node.translation.size() > 0) {
             pos = pos + vec3(node.translation[0], node.translation[1], node.translation[2]);
-       }
+        }
+
         //if mesh load vertices
         if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
          
             createmesh(model, model.meshes[node.mesh], pos);
         }
+
         //then check children
         for (size_t i = 0; i < node.children.size(); i++) {
             gltfnode(model, model.nodes[node.children[i]], pos);
         }
     }
-    //oepns gltf scene
+
+    //opens gltf scene
     void creategltfmodel(tinygltf::Model& model) {
         const tinygltf::Scene& scene = model.scenes[model.defaultScene];
         for (size_t i = 0; i < scene.nodes.size(); ++i) {

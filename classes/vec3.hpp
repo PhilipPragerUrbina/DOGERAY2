@@ -23,17 +23,22 @@ public:
         values[1] = 0;
         values[2] = 0;
     }
-
+    //copy constructors
+    __host__ __device__  vec3(const vec3& b) {
+        values[0] = b.values[0];
+        values[1] = b.values[1];
+        values[2] = b.values[2];
+    }
 
     //operations on vector
     //returns dot product of current vector and other vector
     __host__ __device__ float dot(vec3 b)
-    {
+    const {
         return values[0] * b[0] + values[1] * b[1] + values[2] * b[2];
     }
     //get cross product(right hand rule :)! )
     __host__ __device__ vec3 cross(vec3 b)
-    {
+    const {
         return vec3(values[1] * b[2] - values[2] * b[1], values[2] * b[0] - values[0] * b[2], values[0] * b[1] - values[1] * b[0]);
     }
     //returns normalized version of vector
@@ -41,11 +46,11 @@ public:
         return *this * vec3(1.0f / length());
     }
     //length
-    __host__ __device__ float length() {
+    __host__ __device__ float length()  {
         return sqrtf(this->dot(*this));
     }
     //clamp vector between two values
-    __host__ __device__ vec3 clamped(float min, float max) {
+    __host__ __device__ vec3 clamped(float min, float max) const {
         vec3 out = *this;
         for (int i = 0; i < 3; i++) {
             if (out[i] < min) out[i] = min;
@@ -53,11 +58,16 @@ public:
        }
         return out;
     }
+    //reflect vector ober other vector(normal)
+    __host__ __device__ vec3 reflected(vec3 b) {
+        return *this - vec3(2.0f * this->dot(b)) * b;
+    }
+
     //gets minimum and max values of two vectors
-    vec3 min(vec3 b) {
+    vec3 min(vec3 b) const{
         return vec3(fmin(values[0], b[0]), fmin(values[1], b[1]), fmin(values[2], b[2]));
     }
-    vec3 max(vec3 b) {
+    vec3 max(vec3 b) const{
         return vec3(fmax(values[0], b[0]), fmax(values[1], b[1]), fmax(values[2], b[2]));
     }
 
@@ -66,29 +76,23 @@ public:
     __host__ __device__ constexpr float& operator[](int x) {
         return values[x];
     }
-    __host__ __device__ vec3 operator+(const vec3& b) {
+    __host__ __device__ vec3 operator+(const vec3& b) const {
         return vec3(this->values[0] + b.values[0], this->values[1] + b.values[1], this->values[2] + b.values[2]);
     }
-    __host__ __device__ vec3 operator-(const vec3& b) {
+    __host__ __device__ vec3 operator-(const vec3& b) const {
         return vec3(this->values[0] - b.values[0], this->values[1] - b.values[1], this->values[2] - b.values[2]);
     }
-    __host__ __device__ vec3 operator*(const vec3& b) {
+    __host__ __device__ vec3 operator*(const vec3& b) const{
         return vec3(this->values[0] * b.values[0], this->values[1] * b.values[1], this->values[2] * b.values[2]);
     }
-    __host__ __device__ vec3 operator/(const vec3& b) {
+    __host__ __device__ vec3 operator/(const vec3& b) const {
         return vec3(this->values[0] / b.values[0], this->values[1] / b.values[1], this->values[2] / b.values[2]);
     }
-    //reflect vector ober other vector(normal)
-    __host__ __device__ vec3 reflected(vec3 b) {
-        return *this - vec3(2.0f * this->dot(b)) * b;
-    }
-
 
     //print vec3 to console for debugging
-    void print() {
+    void print() const{
         std::cout << "(" << values[0] << "," << values[1] << "," << values[2] << ")" << std::endl;
     }
- 
 };
 
 //cout overload fr printing vec3 c++ way

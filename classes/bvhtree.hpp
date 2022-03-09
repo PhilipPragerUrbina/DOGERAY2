@@ -11,7 +11,7 @@ public:
 	// is a leaf node
 	bool isleaf = false;
 	//traingle object it contains if it is a leaf node
-	tri traingle;
+	Tri traingle;
 	//children
 	int indexofchilda;
 	int indexofchildb;
@@ -19,11 +19,11 @@ public:
 	int hitnode;
 	int missnode;
 	//axis aligned bounding box (inline since it is called a huge number of times)
-	inline __device__ bool testbox(ray curray) {
+	inline __device__ bool testbox(Ray ray) {
 		//based on pixar AABB function
 		//tmin and tmax still need to be tweaked for max performance
-		float t_min = (box.min[0] - curray.origin[0]) / curray.dir[0];
-		float t_max = (box.max[0] - curray.origin[0]) / curray.dir[0];
+		float t_min = (box.min[0] - ray.origin[0]) / ray.dir[0];
+		float t_max = (box.max[0] - ray.origin[0]) / ray.dir[0];
 		//t_min must be less than max
 		if (t_min > t_max) {
 			float temp = t_max;
@@ -31,9 +31,9 @@ public:
 			t_min = temp;
 		}
 		for (int a = 0; a < 3; a++) {
-			auto invD = 1.0f / curray.dir[a];
-			auto t0 = (box.min[a] - curray.origin[a]) * invD;
-			auto t1 = (box.max[a] - curray.origin[a]) * invD;
+			auto invD = 1.0f / ray.dir[a];
+			auto t0 = (box.min[a] - ray.origin[a]) * invD;
+			auto t1 = (box.max[a] - ray.origin[a]) * invD;
 			if (invD < 0.0f) {
 				//CUDA does nat support std::swap
 				float temp = t1;
@@ -53,10 +53,10 @@ public:
 
 //helper fucntioons for bvh building
 //function for computing the boudning box of multiple objects
-boundingbox arrayboundingbox(std::vector<tri> in) {
+boundingbox arrayboundingbox(std::vector<Tri> in) {
 
 	boundingbox out = in[0].getboundingbox();
-	for (tri object : in) {
+	for (Tri object : in) {
 		boundingbox objectboundingbox = object.getboundingbox();
 		out.min = out.min.min(objectboundingbox.min);
 		out.max = out.max.max(objectboundingbox.max);
@@ -64,25 +64,25 @@ boundingbox arrayboundingbox(std::vector<tri> in) {
 	return out;
 }
 //boudnign box comparison fucntions
-bool boundingboxcompare(tri a, tri b, int xyz) {
+bool boundingboxcompare(Tri a, Tri b, int xyz) {
 	return a.box.min[xyz] < b.box.min[xyz];
 }
 
 //one for each axis
-bool boundingboxcomparex(const tri a, const tri b) {
+bool boundingboxcomparex(const Tri a, const Tri b) {
 	return boundingboxcompare(a, b, 0);
 }
 
-bool boundingboxcomparey(const tri a, const tri b) {
+bool boundingboxcomparey(const Tri a, const Tri b) {
 	return boundingboxcompare(a, b, 1);
 }
 
-bool boundingboxcomparez(const tri a, const tri b) {
+bool boundingboxcomparez(const Tri a, const Tri b) {
 	return boundingboxcompare(a, b, 2);
 }
 
 //calculate standard devation
-float getaxisdeviation(std::vector<tri> objects, int axis)
+float getaxisdeviation(std::vector<Tri> objects, int axis)
 {
 	//get mean of array
 	float sum = 0.0f;
@@ -100,9 +100,9 @@ float getaxisdeviation(std::vector<tri> objects, int axis)
 	return  sqrt(deviation / objects.size());
 }
 //bounding volume hearchy class class
-class bvhtree {
+class Bvhtree {
 public:
-	bvhtree(std::vector<tri> in) {
+	Bvhtree(std::vector<Tri> in) {
 		traingles = in;
 	}
 	//build bvh tree
@@ -122,11 +122,11 @@ public:
 	}
 private:
 	//store triangles to be sorted into tree
-	std::vector<tri> traingles;
+	std::vector<Tri> traingles;
 	//array of nodes to be put on gpu later
 	std::vector<bvhnode> nodes;
 	//recusibly split bvh into nodes until there are elaf nodes with one triangle
-	int recursivesplit(std::vector<tri> remaining) {
+	int recursivesplit(std::vector<Tri> remaining) {
 		//node is created on the stack since it will be stored on an array later and passed to the gpu
 		bvhnode parent;
 		//store index of current node. The node has node been pushed yet so the fact that .size() returns an index 1 bigger is good
@@ -170,8 +170,8 @@ private:
 			break;
 		}
 		//split current triangles
-		std::vector<tri> a;
-		std::vector<tri> b;
+		std::vector<Tri> a;
+		std::vector<Tri> b;
 		for (int i = 0; i < remaining.size(); i++) {
 			if (i < remaining.size() / 2) {
 				a.push_back(remaining[i]);
@@ -187,6 +187,7 @@ private:
 		//return id of this node
 		return parentindex;
 	}
+
 	//create links for stackless bvh traversal later
 	void createlinks(int current, int right) {
 		if (nodes[current].isleaf) {

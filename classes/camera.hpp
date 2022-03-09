@@ -4,7 +4,7 @@
 #include <math.h>
 #include <curand_kernel.h>
 //camera class. based on ray tracing in one weekend
-class camera {
+class Camera {
 public:
     //camera settings
 	vec3 position;
@@ -14,7 +14,6 @@ public:
    
     //calculate camera paramters
     void calculate() {
-      
         //convert fov from degrees to radians
         radfov = degreefov * M_PI / 180;
         float h = tan(radfov / 2);
@@ -24,6 +23,7 @@ public:
         vec3 w = (position - lookposition).normalized();
         vec3 u = up.cross(w).normalized();
         auto v = w.cross(u);
+
         //set values for ray generation on gpu
         horizontal = vec3(viewportwidth) * u;
         vertical = vec3(viewportheight) * v;
@@ -31,14 +31,16 @@ public:
     }
 
     //get ray on device
-    __device__ ray getray(float u, float v) {
-        return ray(position, llc + vec3(u) * horizontal + vec3(v) * vertical - position);
+    __device__ Ray getray(float u, float v) {
+        return Ray(position, llc + vec3(u) * horizontal + vec3(v) * vertical - position);
     }
 
     void calcaspectratio(int width, int height) {
         aspectratio = float(width) / float(height);
     }
+
 private:
+
     float radfov;
     float aspectratio = 1;
     //lower left corner

@@ -10,7 +10,7 @@
 #include <string>
 #include "config.hpp"
 //class for handling gui and user input
-class gui {
+class Gui {
 public:
     //window title
     std::string name;
@@ -18,30 +18,48 @@ public:
     ImVec4 backgroundcolor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     //allow main loop outisde of class to check if exit has been called
     bool exit = false;
+
     //constructor does initial setup
-    gui(std::string name, int width, int height) {
+    Gui(std::string name, int width, int height) {
+
         //init sdl and check for errors
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)  { std::cerr << "error:" << SDL_GetError() << "\n"; return;}
         // Setup window flags
         SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+
         //create window
         GUIwindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
+
         // create renderer
         GUIrenderer = SDL_CreateRenderer(GUIwindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
         if (GUIrenderer == NULL) { std::cerr << "Error creating gui renderer \n"; return; };
+
         //  ImGui context
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGuiIO& io = ImGui::GetIO(); (void)io;
+
         //style
         ImGui::StyleColorsDark();
+
         // set SDL as backend
         ImGui_ImplSDL2_InitForSDLRenderer(GUIwindow, GUIrenderer);
         ImGui_ImplSDLRenderer_Init(GUIrenderer);
         std::cout << "GUI inititialized succesfully \n";
     }
-    //TODO input config class as reference. Edit config with events and gui.
+
+    ~Gui() {
+        ImGui_ImplSDLRenderer_Shutdown();
+        ImGui_ImplSDL2_Shutdown();
+        ImGui::DestroyContext();
+        SDL_DestroyRenderer(GUIrenderer);
+        SDL_DestroyWindow(GUIwindow);
+        SDL_Quit();
+    }
+
+
     void update(config* settings) {
+
         //poll events
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -53,20 +71,17 @@ public:
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
                 exit = true;
             //other events. 
-            //if this class is re-used. Just replace this whith your events.
-           
+            //if this class is re-used. Just replace this whith your events.  
         }
+
         //create IMGUI frame
         ImGui_ImplSDLRenderer_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-
-
         //show window contents
         //if this class is re-used. Just replace this whith your gui.
         static float f = 0.0f;
-
         ImGui::Begin("Controls");                          // Create a window called "Hello, world!" and append into it.
         ImGui::Text("Control Dogeray here");               // Display some text (you can use a format strings too)
       //  ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
@@ -109,15 +124,6 @@ public:
         //present to SDL
         ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
         SDL_RenderPresent(GUIrenderer);
-    }
-      
-    ~gui() {
-        ImGui_ImplSDLRenderer_Shutdown();
-        ImGui_ImplSDL2_Shutdown();
-        ImGui::DestroyContext();
-        SDL_DestroyRenderer(GUIrenderer);
-        SDL_DestroyWindow(GUIwindow);
-        SDL_Quit();
     }
 
 private:

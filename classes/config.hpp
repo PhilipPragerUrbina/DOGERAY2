@@ -11,7 +11,7 @@ public:
 	//strength of bvh preview
 	float bvhstrength = 0.01;
 	//camera
-	camera cam;
+	Camera cam;
 	//should window save image
 	bool saveimage = false;
 

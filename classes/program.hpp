@@ -5,12 +5,12 @@
 #include "tracekernel.hpp"
 #include "bvhtree.hpp"
 
-//multithreading stufff
+//multithreading stuff
 #include<thread>
 //for checking if thread finished
 bool threaddone = false;
 //render on spereate thread to not slow down program
-void render(config set, uint8_t* data, window* win, tracekernel* shader) {
+void render(config set, uint8_t* data, Window* win, Tracekernel* shader) {
     //get winbdow data to copy to
     data = win->getTex();
     //render frame
@@ -21,23 +21,35 @@ void render(config set, uint8_t* data, window* win, tracekernel* shader) {
 }
 
 //main program class
-class program {
+class Program {
 public:
     //congfiguration for host side to device side
     config settings;
     //output data
     uint8_t* data;
     //window and gui
-    gui* Gui;
-    window* win;
+    Gui* gui;
+    Window* win;
     //kernel class
-    tracekernel* shader;
+    Tracekernel* shader;
     //geometry data
     bvhnode* finishedtree;
-    loader* file;
-    bvhtree* tree;
+    Loader* file;
+    Bvhtree* tree;
     //filename of open file
     string openfilename;
+
+    ~Program() {
+        //clean up
+        delete win;
+        delete gui;
+        delete file;
+        delete tree;
+        delete shader;
+        delete[] data;
+        delete[] finishedtree;
+    }
+
     //diplsay console intro title
 	void displaytitle() {
          //The R is for correct multiline formatting
@@ -53,21 +65,25 @@ public:
         std::cout << "V.2.0   by Philip Prager Urbina   2022" << std::endl;
         std::cout << "Find on github: https://github.com/PhilipPragerUrbina/DOGERAY2" << std::endl;
 	}
+
     //open file and build tree
     void loadfile(string filename) {
-        file = new loader(filename, &settings);
+        file = new Loader(filename, &settings);
         file->loadGLTF();
         buildbvh();
         openfilename = filename;
     }
+
     //intitialize ui
     void initui(int width, int height) {
         //update aspect ratio of camera based on resolution
         settings.cam.calcaspectratio(width, height);
         settings.cam.calculate();
+
         //create window and gui objects
-        Gui = new gui("DOGERAY-gui", 200, 200);
-        win = new window("DOGERAY2", width, height);
+        gui = new Gui("DOGERAY-gui", 200, 200);
+        win = new Window("DOGERAY2", width, height);
+
         //set configuration dimenasions
         settings.h = height;
         settings.w = width;
@@ -75,24 +91,28 @@ public:
 
     void runmainloop() {
         //setup kernel
-        shader = new tracekernel(settings, finishedtree);
+        shader = new Tracekernel(settings, finishedtree);
         //start initial render
         thread renderthread(render, settings, data, win, shader);
         //main loop
-        while (!Gui->exit) {
+        while (!gui->exit) {
             //update settings with gui input
-            Gui->update(&settings);
+            gui->update(&settings);
+
             //check if render is done
             if (threaddone) {
                 //join thread
                 renderthread.join();
+
                 //set as noy done
                 threaddone = false;
+
                 //save render if specified in config from gui
                 if (settings.saveimage) {
                     win->saveimage(openfilename);
                     settings.saveimage = false;
                 }
+
                 //start thread
                 renderthread = thread(render, settings, data, win, shader);
                 //increment samples
@@ -104,20 +124,12 @@ public:
             renderthread.join();
         }
     }
-    ~program() {
-        //clean up
-        delete win;
-        delete Gui;
-        delete file;
-        delete tree;
-        delete shader;
-        delete[] data;
-        delete[] finishedtree;
-    }
+
 private:
+
     void buildbvh() {
         //create tree
-        tree = new bvhtree(file->loadedtris);
+        tree = new Bvhtree(file->loadedtris);
         //build tree
         tree->build();
         //get finished tree data

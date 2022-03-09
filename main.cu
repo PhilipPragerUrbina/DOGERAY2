@@ -2,7 +2,7 @@
 #include "program.hpp"
 int main(int argc, char* args[])
 {
-    program raytracer;
+    Program raytracer;
     raytracer.displaytitle();
     //check what file to open. if none specified, try to open defualt file. Normally you use "open with" to open scenes.
     std::string filename = "defualt.gltf";
