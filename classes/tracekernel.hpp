@@ -49,7 +49,7 @@ public:
 	dim3 threadsPerBlock;
 
 	//constructor allocates memory and does setup
-	Tracekernel(config settings, bvhnode* geometry) {
+	Tracekernel(config settings, bvhnode* geometry, Mat* materials) {
 		//setup device
 		cudaGetDevice(&device);
 		threadsPerBlock = dim3(8, 8);
@@ -63,11 +63,18 @@ public:
 		size_t geosize = sizeof(bvhnode) * settings.bvhsize ;
 		status = cudaMalloc((void**)&device_geometry, geosize);
 		if (status != cudaSuccess) { std::cerr << "error allocating geometry on device \n"; return; }
+
+		size_t matsize = sizeof(Mat) * settings.matsize;
+		status = cudaMalloc((void**)&device_materials, matsize);
+		if (status != cudaSuccess) { std::cerr << "error allocating materials on device \n"; return; }
 		std::cout << "GPU memory succesfully allocated \n";
 
 		//copy over normal geometry
 		status = cudaMemcpy(device_geometry, geometry, geosize, cudaMemcpyHostToDevice); 
 		if (status != cudaSuccess) { std::cerr << "error copying geometry on device \n"; return; }
+
+		status = cudaMemcpy(device_materials, materials, matsize, cudaMemcpyHostToDevice);
+		if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
 		std::cout << "GPU memory succesfully copied over \n";
 	}
 	//render out an image
@@ -77,7 +84,7 @@ public:
 		#endif
 
 		//create scene object
-		World scene(device_geometry, settings);
+		World scene(device_geometry, settings, device_materials);
 
 		//run kenrel
 		raytracekernel << <numBlocks, threadsPerBlock >> > (device_image, scene);
@@ -94,6 +101,7 @@ public:
 		//free memory
 		cudaFree(device_image);
 		cudaFree(device_geometry);
+		cudaFree(device_materials);
 	}
 
 	//check for errors afetr kenrel launch. Not doing very time for performance.
@@ -121,6 +129,7 @@ private:
 
 	//geometry data
 	bvhnode* device_geometry = 0;
+	Mat* device_materials = 0;
 
 	//for profiling
 	std::chrono::steady_clock::time_point begin;

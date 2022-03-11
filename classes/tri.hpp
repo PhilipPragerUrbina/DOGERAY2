@@ -21,6 +21,7 @@ public:
 
 	boundingbox box;
 	vertex verts[3];
+	int materialid = 0;
 
 	boundingbox getboundingbox() {
 		//return minimum and maximum position values from traingle for bvh construction

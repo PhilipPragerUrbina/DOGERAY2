@@ -5,6 +5,7 @@ struct config {
 public:
 	//number of bvh nodes for alloc
 	int bvhsize;
+	int matsize;
 	//image width and height
 	int w;
 	int h;

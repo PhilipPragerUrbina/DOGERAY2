@@ -35,7 +35,9 @@ public:
     //geometry data
     bvhnode* finishedtree;
     Loader* file;
+    //tree is dynamically allocated to make sure it's data is not descucted before it can be put on the gpu
     Bvhtree* tree;
+    Mat* materials;
     //filename of open file
     string openfilename;
 
@@ -72,6 +74,10 @@ public:
         file->loadGLTF();
         buildbvh();
         openfilename = filename;
+
+        //load materials
+        materials = file->loadedmaterials.data();
+        settings.matsize = file->loadedmaterials.size();
     }
 
     //intitialize ui
@@ -91,7 +97,7 @@ public:
 
     void runmainloop() {
         //setup kernel
-        shader = new Tracekernel(settings, finishedtree);
+        shader = new Tracekernel(settings, finishedtree, materials);
         //start initial render
         thread renderthread(render, settings, data, win, shader);
         //main loop

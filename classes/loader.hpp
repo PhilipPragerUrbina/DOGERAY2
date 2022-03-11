@@ -23,6 +23,8 @@ public:
 	string filename = "";
     //store triangles afetr they have been loaded
     vector<Tri> loadedtris;
+    //store materials
+    vector<Mat> loadedmaterials;
 
 	Loader(string name, config* editablesettings) {
         settings = editablesettings;
@@ -34,10 +36,19 @@ public:
 
 	//load GLTF file
 	void loadGLTF() {
+        
+ 
         //create model for library
         tinygltf::Model model = loadgltfmodel(filename);
         //recusivley load it into array
         creategltfmodel(model);
+        //check
+        if (loadedmaterials.size() == 0) {
+            std::cerr << "no matirials found \n";
+        }
+        if (loadedtris.size() == 0) {
+            std::cerr << "no tris found \n";
+        }
         //print info
         if (containsnontris) { cout << "warning: Model may contain non tris \n"; }
         cout << "GLTF model parsed succesfully! \n";
@@ -86,6 +97,42 @@ private:
     void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, vec3 pos) {
         //for each tri
         for (size_t i = 0; i < mesh.primitives.size(); ++i) {
+            //set up material
+            //get GLTF mat id
+            int gltfmaterialid = mesh.primitives[i].material;
+          //  model.images[model.textures[0].source].
+            //actual id in material array
+            int arraymaterialid = -1;
+            for (int i = 0; i < loadedmaterials.size(); i++) {
+                //check if exists
+                if (loadedmaterials[i].id == gltfmaterialid) {
+                    arraymaterialid = i;
+                    break;
+                }
+            }
+            //create mat if not exist
+            if (arraymaterialid == -1) {
+                //get gltf matirial
+                auto gltfmat = model.materials[mesh.primitives[i].material];
+                //set color
+                vec3 color;
+                color[0] = gltfmat.pbrMetallicRoughness.baseColorFactor[0];
+                color[1] = gltfmat.pbrMetallicRoughness.baseColorFactor[1];
+                color[2] = gltfmat.pbrMetallicRoughness.baseColorFactor[2];
+                //create and add mat
+                Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor);
+                loadedmaterials.push_back(newmat);
+                //set id
+                arraymaterialid = loadedmaterials.size()-1;
+            }
+       
+            //check if material id exists
+            //if not create material and gen textures
+            //assign material to active material id
+            //asign id to triangles in prmitive
+
+          // model.materials[mesh.primitives[i].material].pbrMetallicRoughness.;
+
 
             //get indeces for correct number of tris
             tinygltf::Accessor indexAccessor = model.accessors[mesh.primitives[i].indices];
@@ -129,6 +176,7 @@ private:
             //triange index. Which vertex out of 3 is it.
             int e = 0;
             Tri newtri;
+            newtri.materialid = arraymaterialid;
             //update vertex count
             vertexcount += accessor.count;
         
@@ -149,7 +197,7 @@ private:
                 newtri.verts[e].norm = vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
                 //set tex 
                 //TODO set texture and amtrial. Potentially could be stored in tex.z
-                newtri.verts[e].tex = vec3(tex[index * 3 + 0], tex[index * 3 + 1], 0);
+                newtri.verts[e].tex = vec3(tex[index * 2 + 0], tex[index * 2 + 1], 0);
 
                 e++;
                 if (e == 3) {

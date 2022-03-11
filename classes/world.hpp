@@ -10,10 +10,13 @@ public:
 	config settings;
 	//geomtry pointer
 	bvhnode* tree;
+	//materials pointer
+	Mat* materials;
 
 	//constructor for host
-	 World (bvhnode* BVH, config con) {
+	 World (bvhnode* BVH, config con, Mat* mat) {
 		settings = con;
+		materials = mat;
 		tree = BVH;
 	}
 
@@ -30,10 +33,10 @@ public:
 				 //calculate additional hit information
 				 vec3 hitpoint = ray.at(distance);
 				 vec3 normal = getnormal() ;
+				 vec3 texcoords = gettexcoords();
 
-				 Metal metal;
-				 Mat* mat = &metal;
-				 mat->interact(&ray, hitpoint, normal, seed);
+				 Mat mat = materials[triangle.materialid];
+				 mat.interact(&ray, texcoords, hitpoint, normal, seed);
 				
 
 			
@@ -104,6 +107,9 @@ private:
 	//get tringle normal from hit
 	__device__ vec3 getnormal() {
 		return ((vec3(1 - uv[0] - uv[1]) * triangle.verts[0].norm) + (vec3(uv[0]) * triangle.verts[1].norm) + (vec3(uv[1]) * triangle.verts[2].norm));
+	}
+	__device__ vec3 gettexcoords() {
+			return ((vec3(1 - uv[0] - uv[1]) * triangle.verts[0].tex) + (vec3(uv[0]) * triangle.verts[1].tex) + (vec3(uv[1]) * triangle.verts[2].tex));
 	}
 };
 //leftover color modes
