@@ -13,6 +13,7 @@ struct vertex {
 struct boundingbox {
 	vec3 max;
 	vec3 min;
+	vec3 center;
 };
 
 //tiangle class
@@ -29,6 +30,7 @@ public:
 		const float flaterror = 0.001f;
 		box.min = vec3(fmin(verts[0].pos[0], fmin(verts[1].pos[0], verts[2].pos[0])), fmin(verts[0].pos[1], fmin(verts[1].pos[1], verts[2].pos[1])), fmin(verts[0].pos[2], fmin(verts[1].pos[2], verts[2].pos[2]))) - vec3(flaterror);
 		box.max = vec3(fmax(verts[0].pos[0], fmax(verts[1].pos[0], verts[2].pos[0])), fmax(verts[0].pos[1], fmax(verts[1].pos[1], verts[2].pos[1])), fmax(verts[0].pos[2], fmax(verts[1].pos[2], verts[2].pos[2]))) + vec3(flaterror);
+		box.center = (box.min + box.max) / vec3(2.0f);
 		return box;
 	}
 
@@ -41,7 +43,7 @@ public:
 
 		//floating point error range. Larger for larger objects to avoid speckling problem.
 		//TODO either create system for choosig n epslon or  make file occinates smaller
-		const float epsilon = 0.001f;
+		const float epsilon = 0.0001f;
 		if (fabs(det) < epsilon) return false;
 
 		float invDet = 1.0f / det;

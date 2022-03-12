@@ -45,7 +45,7 @@ public:
 				 //ray misses
 				 //bg color
 				 float t = 0.5 * (ray.dir.normalized()[1] + 1.0);
-				 return ray.attenuation * (vec3(1.0 - t) * vec3(1.0, 1.0, 1.0) + vec3(t) * vec3(0.5, 0.7, 1.0));
+				 return ray.attenuation * (vec3(1.0 - t) * vec3(1.0, 1.0, 1.0) + vec3(t) * vec3(0.1, 0.1, 0.1));
 			 }
 		 }
 		 return  vec3(0);

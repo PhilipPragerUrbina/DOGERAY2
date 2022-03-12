@@ -35,10 +35,11 @@ public:
     cudaTextureObject_t colortexture = 0;
 
     float metalfactor = 0.5;
-    cudaTextureObject_t metaltexture = 0;
 
     float roughfactor = 0.5;
     cudaTextureObject_t roughtexture = 0;
+
+    cudaTextureObject_t normaltexture = 0;
 
     //id for material creation in host(prevent duplicates)
     int id = 0;
@@ -50,9 +51,22 @@ public:
     }
 
     __device__  void interact(Ray* ray, vec3 texcoords , vec3 hitpoint, vec3 normal, curandState* seed) {
+     
+        if (normaltexture != 0) {
+            uchar4 tex = tex2D<uchar4>(normaltexture, texcoords[0], texcoords[1]);
+            normal = normal + vec3(float(tex.x) / 127.5 - 1, float(tex.y) / 127.5 - 1, float(tex.z) / 127.5 - 1);
+        }
+
+        float rough = roughfactor;
+        if (roughtexture != 0) {
+            uchar4 tex = tex2D<uchar4>(roughtexture, texcoords[0], texcoords[1]);
+            rough = rough * vec3(float(tex.x) / 255, float(tex.y) / 255, float(tex.z) / 255)[1];
+        }
         //calculate direction
         vec3 reflected = ray->dir.normalized().reflected(normal);
-        ray->dir = reflected + vec3(0.1) * randomvec3insphere(seed);
+        ray->dir = reflected + vec3(rough) * randomvec3insphere(seed);
+
+
         //update ray
         ray->origin = hitpoint;
         //ray->attenuation = ray->attenuation * checker(texcoords, vec3(0.8,0.5, 0.5), vec3(0.5, 0.8, 0.5));
@@ -61,6 +75,7 @@ public:
             uchar4 tex = tex2D<uchar4>(colortexture, texcoords[0], texcoords[1]);
             color = color * vec3(float(tex.x) / 255, float(tex.y) / 255, float(tex.z) / 255);
         }
+       
       
         ray->attenuation = ray->attenuation * color;
 
@@ -156,12 +171,12 @@ void loadtexture(unsigned char* data, int width, int height, int channels, int b
         &channelDesc,
         width,
         height);
-    if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
+    if (status != cudaSuccess) { std::cerr << "error allocating textures on device \n"; return; }
     size_t spitch = width * s;
 
     status = cudaMemcpy2DToArray(cuArray, 0, 0, data, spitch, width * s,
         height, cudaMemcpyHostToDevice);
-    if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
+    if (status != cudaSuccess) { std::cerr << "error copying textures on device \n"; return; }
     
     cudaResourceDesc            texRes;
     memset(&texRes, 0, sizeof(cudaResourceDesc));
@@ -180,8 +195,8 @@ void loadtexture(unsigned char* data, int width, int height, int channels, int b
     //  texDescr.readMode = cudaReadModeElementType;
 
     status =cudaCreateTextureObject(texture, &texRes, &texDescr, NULL);
-    if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
-    std::cout << bits << " bits " << channels <<" texture loaded succesfully \n";
+    if (status != cudaSuccess) { std::cerr << "error creating textures on device \n"; return; }
+    std::cout << bits << " bit " << channels <<" channel texture loaded succesfully \n";
 
 
 

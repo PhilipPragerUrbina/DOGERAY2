@@ -94,7 +94,7 @@ private:
     }
 
     //create triangles from GLTF mesh and set attributes
-    void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, vec3 pos) {
+    void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, vec3 pos, vec3 scale) {
         //for each tri
         for (size_t i = 0; i < mesh.primitives.size(); ++i) {
             //set up material
@@ -128,6 +128,16 @@ private:
                 if (gltfmat.pbrMetallicRoughness.baseColorTexture.index != -1){
                     auto colorimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.baseColorTexture.index].source];
                         loadtexture(colorimage.image.data(), colorimage.width, colorimage.height, colorimage.component, colorimage.bits, &newmat.colortexture);
+                }
+                //load rough tetxure
+                if (gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index != -1) {
+                    auto roughimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index].source];
+                    loadtexture(roughimage.image.data(), roughimage.width, roughimage.height, roughimage.component, roughimage.bits, &newmat.roughtexture);
+                }
+                //load normal map
+                if (gltfmat.normalTexture.index != -1) {
+                    auto normalimage = model.images[model.textures[gltfmat.normalTexture.index].source];
+                    loadtexture(normalimage.image.data(), normalimage.width, normalimage.height, normalimage.component, normalimage.bits, &newmat.normaltexture);
                 }
                 loadedmaterials.push_back(newmat);
     
@@ -196,7 +206,7 @@ private:
                 }
 
                 //set pos
-                newtri.verts[e].pos = vec3(positions[index * 3 + 0]+pos[0], positions[index * 3 + 1] + pos[0], positions[index * 3 + 2] + pos[0]);
+                newtri.verts[e].pos = vec3(positions[index * 3 + 0], positions[index * 3 + 1], positions[index * 3 + 2])*scale+pos;
                 //set norm 
                 newtri.verts[e].norm = vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
                 //set tex 
@@ -218,7 +228,7 @@ private:
 
     //traverse gltf nodes
     void gltfnode(tinygltf::Model& model,
-        tinygltf::Node& node, vec3 pos) {
+        tinygltf::Node& node, vec3 pos, vec3 scale) {
         
         if (node.camera > 0) {
             settings->cam.position = pos;
@@ -229,16 +239,21 @@ private:
         if (node.translation.size() > 0) {
             pos = pos + vec3(node.translation[0], node.translation[1], node.translation[2]);
         }
+        if (node.scale.size() > 0) {
+            scale = scale * vec3(node.scale[0], node.scale[1], node.scale[2]);
+        }
+
+
 
         //if mesh load vertices
         if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
          
-            createmesh(model, model.meshes[node.mesh], pos);
+            createmesh(model, model.meshes[node.mesh], pos, scale);
         }
 
         //then check children
         for (size_t i = 0; i < node.children.size(); i++) {
-            gltfnode(model, model.nodes[node.children[i]], pos);
+            gltfnode(model, model.nodes[node.children[i]], pos,scale);
         }
     }
 
@@ -246,7 +261,7 @@ private:
     void creategltfmodel(tinygltf::Model& model) {
         const tinygltf::Scene& scene = model.scenes[model.defaultScene];
         for (size_t i = 0; i < scene.nodes.size(); ++i) {
-            gltfnode(model, model.nodes[scene.nodes[i]], vec3(0));
+            gltfnode(model, model.nodes[scene.nodes[i]], vec3(0), vec3(1));
         }
     }
 

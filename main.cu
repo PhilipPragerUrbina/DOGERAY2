@@ -9,7 +9,7 @@ int main(int argc, char* args[])
     if (argc > 1)  filename = args[1];
 
     //defualt settings
-    raytracer.settings.cam.position = vec3(-600, 0, 1);
+    raytracer.settings.cam.position = vec3(1, 1, 100);
     raytracer.settings.cam.lookposition = vec3(0, 0, 0);
     raytracer.settings.cam.up = vec3(0, 1, 0);
     //width and height

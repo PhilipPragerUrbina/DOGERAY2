@@ -22,13 +22,13 @@ public:
 	inline __device__ bool testbox(Ray ray) {
 		//based on pixar AABB function
 		//tmin and tmax still need to be tweaked for max performance
-		float t_min = (box.min[0] - ray.origin[0]) / ray.dir[0];
-		float t_max = (box.max[0] - ray.origin[0]) / ray.dir[0];
+		float tmin = (box.min[0] - ray.origin[0]) / ray.dir[0];
+		float tmax = (box.max[0] - ray.origin[0]) / ray.dir[0];
 		//t_min must be less than max
-		if (t_min > t_max) {
-			float temp = t_max;
-			t_max = t_min;
-			t_min = temp;
+		if (tmin > tmax) {
+			float temp = tmax;
+			tmax = tmin;
+			tmin = temp;
 		}
 		for (int a = 0; a < 3; a++) {
 			auto invD = 1.0f / ray.dir[a];
@@ -40,9 +40,9 @@ public:
 				t1 = t0;
 				t0 = temp;
 			}
-			t_min = t0 > t_min ? t0 : t_min;
-			t_max = t1 < t_max ? t1 : t_max;
-			if (t_max <= t_min) {
+			tmin = t0 > tmin ? t0 : tmin;
+			tmax = t1 < tmax ? t1 : tmax;
+			if (tmax <= tmin) {
 				return false;
 			}
 		}
@@ -53,7 +53,7 @@ public:
 
 //helper fucntioons for bvh building
 //function for computing the boudning box of multiple objects
-boundingbox arrayboundingbox(std::vector<Tri> in) {
+boundingbox arrayboundingbox(std::vector<Tri>& in) {
 
 	boundingbox out = in[0].getboundingbox();
 	for (Tri object : in) {
@@ -65,7 +65,7 @@ boundingbox arrayboundingbox(std::vector<Tri> in) {
 }
 //boudnign box comparison fucntions
 bool boundingboxcompare(Tri a, Tri b, int xyz) {
-	return a.box.min[xyz] < b.box.min[xyz];
+	return a.box.center[xyz] < b.box.center[xyz];
 }
 
 //one for each axis
@@ -81,23 +81,23 @@ bool boundingboxcomparez(const Tri a, const Tri b) {
 	return boundingboxcompare(a, b, 2);
 }
 
-//calculate standard devation
-float getaxisdeviation(std::vector<Tri> objects, int axis)
+//get the range of the positons of triangles along an axis
+float getaxisrange(std::vector<Tri> objects, int axis)
 {
-	//get mean of array
-	float sum = 0.0f;
-	for (int i = 0; i < objects.size(); i++)
+	float min = objects[0].box.center[axis];
+	float max = objects[0].box.center[axis];
+	for (Tri t : objects)
 	{
-		sum += objects[i].box.min[axis];
+		float boxpos = t.box.center[axis];
+		if (boxpos < min) {
+			min = boxpos;
+		}
+		if (boxpos > max) {
+			max = boxpos;
+		}
 	}
-	float mean = sum / objects.size();
+	return max - min;
 
-	//get deviation
-	float deviation = 0.0;
-	for (int i = 0; i < objects.size(); i++) {
-		deviation += pow(objects[i].box.min[axis] - mean, 2);
-	}
-	return  sqrt(deviation / objects.size());
 }
 //bounding volume hearchy class class
 class Bvhtree {
@@ -148,10 +148,10 @@ private:
 		nodes.push_back(parent);
 		//get axis with most differnce
 		int axis = 0;
-		int x = getaxisdeviation(remaining, 0);
-		int y = getaxisdeviation(remaining, 0);
+		int x = getaxisrange(remaining, 0);
+		int y = getaxisrange(remaining, 1);
 		if (y > x) { axis = 1; }
-		int z = getaxisdeviation(remaining, 0);
+		int z = getaxisrange(remaining, 2);
 		if (z > x && z > y) { axis = 2; }
 		//sort current triangles based on axis
 		switch (axis) {
