@@ -100,7 +100,6 @@ private:
             //set up material
             //get GLTF mat id
             int gltfmaterialid = mesh.primitives[i].material;
-          //  model.images[model.textures[0].source].
             //actual id in material array
             int arraymaterialid = -1;
             for (int i = 0; i < loadedmaterials.size(); i++) {
@@ -112,6 +111,7 @@ private:
             }
             //create mat if not exist
             if (arraymaterialid == -1) {
+         
                 //get gltf matirial
                 auto gltfmat = model.materials[mesh.primitives[i].material];
                 //set color
@@ -121,17 +121,21 @@ private:
                 color[2] = gltfmat.pbrMetallicRoughness.baseColorFactor[2];
                 //create and add mat
                 Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor);
+               
+           
+
+                //load color tetxure
+                if (gltfmat.pbrMetallicRoughness.baseColorTexture.index != -1){
+                    auto colorimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.baseColorTexture.index].source];
+                        loadtexture(colorimage.image.data(), colorimage.width, colorimage.height, colorimage.component, colorimage.bits, &newmat.colortexture);
+                }
                 loadedmaterials.push_back(newmat);
+    
+
                 //set id
                 arraymaterialid = loadedmaterials.size()-1;
             }
-       
-            //check if material id exists
-            //if not create material and gen textures
-            //assign material to active material id
-            //asign id to triangles in prmitive
 
-          // model.materials[mesh.primitives[i].material].pbrMetallicRoughness.;
 
 
             //get indeces for correct number of tris

@@ -30,9 +30,16 @@ __device__ vec3 checker(vec3 uv, vec3 col1, vec3 col2) {
 class Mat {
 public:
     //mat properties. Uses PBR inputs. 
+    //0 menas no texture
     vec3 colorfactor = vec3(0.5,0.5,0.5);
+    cudaTextureObject_t colortexture = 0;
+
     float metalfactor = 0.5;
+    cudaTextureObject_t metaltexture = 0;
+
     float roughfactor = 0.5;
+    cudaTextureObject_t roughtexture = 0;
+
     //id for material creation in host(prevent duplicates)
     int id = 0;
     Mat(int ident, vec3 col, float metal, float rough) {
@@ -43,12 +50,20 @@ public:
     }
 
     __device__  void interact(Ray* ray, vec3 texcoords , vec3 hitpoint, vec3 normal, curandState* seed) {
-        //calc direction
-        vec3 target = hitpoint + normal + randomvec3insphere(seed);
-        ray->dir = (target - hitpoint).normalized();
+        //calculate direction
+        vec3 reflected = ray->dir.normalized().reflected(normal);
+        ray->dir = reflected + vec3(0.1) * randomvec3insphere(seed);
         //update ray
         ray->origin = hitpoint;
-        ray->attenuation = ray->attenuation * checker(texcoords, vec3(0.8,0.5, 0.5), vec3(0.5, 0.8, 0.5));
+        //ray->attenuation = ray->attenuation * checker(texcoords, vec3(0.8,0.5, 0.5), vec3(0.5, 0.8, 0.5));
+        vec3 color = colorfactor;
+        if (colortexture != 0) {
+            uchar4 tex = tex2D<uchar4>(colortexture, texcoords[0], texcoords[1]);
+            color = color * vec3(float(tex.x) / 255, float(tex.y) / 255, float(tex.z) / 255);
+        }
+      
+        ray->attenuation = ray->attenuation * color;
+
     };
 };
 
@@ -107,3 +122,67 @@ class Metal : public Mat {
 
             }
 };*/
+
+
+//helpr function for allocating image textrue. Not in class since it sues cuda texture objevt
+//TODO move soemwhere else. Add freeing of texture
+void loadtexture(unsigned char* data, int width, int height, int channels, int bits, cudaTextureObject_t* texture) {
+
+    cudaError_t status;
+    size_t s = bits/8 * channels;
+    size_t  sizee = width * height * s;
+
+
+    // Allocate array and copy image data
+
+    cudaChannelFormatDesc channelDesc =
+        cudaCreateChannelDesc(bits, bits, bits, bits, cudaChannelFormatKindUnsigned);
+
+    if (channels == 1) {
+        channelDesc =
+            cudaCreateChannelDesc(bits, 0, 0, 0, cudaChannelFormatKindUnsigned);
+    }
+    else if (channels == 2) {
+        channelDesc =
+            cudaCreateChannelDesc(bits, bits, 0, 0, cudaChannelFormatKindUnsigned);
+    }
+    else if (channels == 3) {
+        channelDesc =
+            cudaCreateChannelDesc(bits, bits, bits, 0, cudaChannelFormatKindUnsigned);
+    }
+
+    cudaArray* cuArray;
+    status = cudaMallocArray(&cuArray,
+        &channelDesc,
+        width,
+        height);
+    if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
+    size_t spitch = width * s;
+
+    status = cudaMemcpy2DToArray(cuArray, 0, 0, data, spitch, width * s,
+        height, cudaMemcpyHostToDevice);
+    if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
+    
+    cudaResourceDesc            texRes;
+    memset(&texRes, 0, sizeof(cudaResourceDesc));
+
+    texRes.resType = cudaResourceTypeArray;
+    texRes.res.array.array = cuArray;
+
+    cudaTextureDesc             texDescr;
+    memset(&texDescr, 0, sizeof(cudaTextureDesc));
+
+    texDescr.normalizedCoords = true;
+    texDescr.filterMode = cudaFilterModePoint;
+    texDescr.addressMode[0] = cudaAddressModeWrap;
+    texDescr.addressMode[1] = cudaAddressModeWrap;
+
+    //  texDescr.readMode = cudaReadModeElementType;
+
+    status =cudaCreateTextureObject(texture, &texRes, &texDescr, NULL);
+    if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
+    std::cout << bits << " bits " << channels <<" texture loaded succesfully \n";
+
+
+
+}
