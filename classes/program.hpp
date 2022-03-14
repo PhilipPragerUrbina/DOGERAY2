@@ -45,9 +45,10 @@ public:
         //clean up
         delete win;
         delete gui;
-        delete file;
         delete tree;
+        shader->cleantextures();
         delete shader;
+        delete file;
         delete[] data;
         delete[] finishedtree;
     }

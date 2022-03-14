@@ -69,6 +69,7 @@
     <ClInclude Include="classes\world.hpp" />
     <ClInclude Include="classes\program.hpp" />
     <ClInclude Include="classes\mat.hpp" />
+    <ClInclude Include="classes\texture.hpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />

@@ -93,6 +93,7 @@
     <ClInclude Include="classes\mat.hpp" />
     <ClInclude Include="classes\program.hpp" />
     <ClInclude Include="classes\ray.hpp" />
+    <ClInclude Include="classes\texture.hpp" />
     <ClInclude Include="classes\tracekernel.hpp" />
     <ClInclude Include="classes\tri.hpp" />
     <ClInclude Include="classes\vec3.hpp" />

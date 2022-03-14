@@ -127,17 +127,17 @@ private:
                 //load color tetxure
                 if (gltfmat.pbrMetallicRoughness.baseColorTexture.index != -1){
                     auto colorimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.baseColorTexture.index].source];
-                        loadtexture(colorimage.image.data(), colorimage.width, colorimage.height, colorimage.component, colorimage.bits, &newmat.colortexture);
+                    newmat.colortexture.create(colorimage.image.data(), colorimage.width, colorimage.height, colorimage.component, colorimage.bits);
                 }
                 //load rough tetxure
                 if (gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index != -1) {
                     auto roughimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index].source];
-                    loadtexture(roughimage.image.data(), roughimage.width, roughimage.height, roughimage.component, roughimage.bits, &newmat.roughtexture);
+                    newmat.roughtexture.create(roughimage.image.data(), roughimage.width, roughimage.height, roughimage.component, roughimage.bits);
                 }
                 //load normal map
                 if (gltfmat.normalTexture.index != -1) {
                     auto normalimage = model.images[model.textures[gltfmat.normalTexture.index].source];
-                    loadtexture(normalimage.image.data(), normalimage.width, normalimage.height, normalimage.component, normalimage.bits, &newmat.normaltexture);
+                    newmat.normaltexture.create(normalimage.image.data(), normalimage.width, normalimage.height, normalimage.component, normalimage.bits);
                 }
                 loadedmaterials.push_back(newmat);
     
@@ -210,7 +210,7 @@ private:
                 //set norm 
                 newtri.verts[e].norm = vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
                 //set tex 
-                //TODO set texture and amtrial. Potentially could be stored in tex.z
+      
                 newtri.verts[e].tex = vec3(tex[index * 2 + 0], tex[index * 2 + 1], 0);
 
                 e++;

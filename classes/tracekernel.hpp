@@ -50,6 +50,10 @@ public:
 
 	//constructor allocates memory and does setup
 	Tracekernel(config settings, bvhnode* geometry, Mat* materials) {
+		//for texture cleanup later
+		nummaterials = settings.matsize;
+		materialstoclean = materials;
+
 		//setup device
 		cudaGetDevice(&device);
 		threadsPerBlock = dim3(8, 8);
@@ -97,6 +101,15 @@ public:
 		rendertime();
 		#endif
 	}
+	void cleantextures() {
+		for (int i = 0; i < nummaterials; i++) {
+			//TODO add rest of textures here
+			materialstoclean[i].colortexture.destroy();
+			materialstoclean[i].normaltexture.destroy();
+			materialstoclean[i].roughtexture.destroy();
+		}
+	}
+
 	~Tracekernel() {
 		//free memory
 		cudaFree(device_image);
@@ -134,4 +147,8 @@ private:
 	//for profiling
 	std::chrono::steady_clock::time_point begin;
 	std::chrono::steady_clock::time_point end;
+
+	//for cleanup of texture
+	int nummaterials;
+	Mat* materialstoclean;
 };

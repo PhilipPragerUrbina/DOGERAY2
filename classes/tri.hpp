@@ -42,7 +42,7 @@ public:
 		float det = v0v1.dot(pvec);
 
 		//floating point error range. Larger for larger objects to avoid speckling problem.
-		//TODO either create system for choosig n epslon or  make file occinates smaller
+		//TODO either create system for choosig n epslon or  make file coords smaller
 		const float epsilon = 0.0001f;
 		if (fabs(det) < epsilon) return false;
 

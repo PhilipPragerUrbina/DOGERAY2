@@ -35,8 +35,8 @@ public:
 				 vec3 normal = getnormal() ;
 				 vec3 texcoords = gettexcoords();
 
-				 Mat mat = materials[triangle.materialid];
-				 mat.interact(&ray, texcoords, hitpoint, normal, seed);
+				
+				 materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, seed);
 				
 
 			
