@@ -23,7 +23,7 @@ __global__ void raytracekernel(uint8_t* image,World scene) {
 	//gnerate ray
 	Ray currentray = scene.settings.cam.getray(u, v);
 	//trace ray
-	vec3 color = scene.color(currentray,&seed);
+	Vec3 color = scene.color(currentray,&seed);
 
 	//set image color if first sample(mult by 255 since color are currently in randge of 0-1)
 	if (scene.settings.samples == 0) {

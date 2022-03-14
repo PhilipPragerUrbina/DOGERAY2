@@ -12,9 +12,44 @@
 //include triangle classs
 #include "tri.hpp"
 #include "config.hpp"
+//TODO add to github docs
+//needed for transformations
+#include <linalg.h>
 
+//for output
 using namespace std;
-//class for loading 3d files
+
+//struct to stroe gltf rotation values
+struct Quaternion {
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    float w = 1;
+};
+//fucntion for rotating point by quaternion
+Vec3 rotated(Vec3 v, Quaternion q)
+{
+    if (q.x == 0 && q.y == 0 && q.z == 0 && q.w == 1) {
+        return v;
+    }
+    Vec3 u(q.x, q.y, q.z);
+    float s = q.w;
+    // Do the math
+    return Vec3(2.0f * u.dot(v)) * u
+        + Vec3(s * s - u.dot(u)) * v
+        + Vec3(2.0f * s) * u.cross(v);
+}
+Quaternion qmul(Quaternion q1, Quaternion q2) {
+    Quaternion out;
+    out.x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
+    out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
+    out.z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
+    out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
+    return out;
+}
+
+//class for loading 3d files from gltf
+//TODO create loader base class and create multiple file types
 class Loader {
 public:
 
@@ -30,7 +65,7 @@ public:
         settings = editablesettings;
         filename = name;
         //set format specific settings
-        settings->cam.up = vec3(0, -1, 0);
+        settings->cam.up = Vec3(0, -1, 0);
 		cout << "Loading file: " << filename << "\n";
 	}
 
@@ -94,7 +129,7 @@ private:
     }
 
     //create triangles from GLTF mesh and set attributes
-    void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, vec3 pos, vec3 scale) {
+    void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, Vec3 pos, Vec3 scale, Quaternion rot, linalg::aliases::float4x4 a, bool hasmatrix) {
         //for each tri
         for (size_t i = 0; i < mesh.primitives.size(); ++i) {
             //set up material
@@ -115,7 +150,7 @@ private:
                 //get gltf matirial
                 auto gltfmat = model.materials[mesh.primitives[i].material];
                 //set color
-                vec3 color;
+                Vec3 color;
                 color[0] = gltfmat.pbrMetallicRoughness.baseColorFactor[0];
                 color[1] = gltfmat.pbrMetallicRoughness.baseColorFactor[1];
                 color[2] = gltfmat.pbrMetallicRoughness.baseColorFactor[2];
@@ -206,12 +241,26 @@ private:
                 }
 
                 //set pos
-                newtri.verts[e].pos = vec3(positions[index * 3 + 0], positions[index * 3 + 1], positions[index * 3 + 2])*scale+pos;
+                newtri.verts[e].pos = rotated(Vec3(positions[index * 3 + 0], positions[index * 3 + 1], positions[index * 3 + 2]) * scale, rot) +pos;
+                if (hasmatrix) {
+                    //if there is matrix. Transofrm point
+                    linalg::aliases::float4 old;
+                    old.x = newtri.verts[e].pos[0];
+                    old.y = newtri.verts[e].pos[1];
+                    old.z = newtri.verts[e].pos[2];
+                    old.w = 1;
+                    using namespace linalg::aliases;
+                    old = mul( a,old);
+                    newtri.verts[e].pos[0] = old.x;
+                    newtri.verts[e].pos[1] = old.y;
+                    newtri.verts[e].pos[2] = old.z;
+                }
+
                 //set norm 
-                newtri.verts[e].norm = vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
+                newtri.verts[e].norm = Vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
                 //set tex 
       
-                newtri.verts[e].tex = vec3(tex[index * 2 + 0], tex[index * 2 + 1], 0);
+                newtri.verts[e].tex = Vec3(tex[index * 2 + 0], tex[index * 2 + 1], 0);
 
                 e++;
                 if (e == 3) {
@@ -228,32 +277,62 @@ private:
 
     //traverse gltf nodes
     void gltfnode(tinygltf::Model& model,
-        tinygltf::Node& node, vec3 pos, vec3 scale) {
+        tinygltf::Node& node, Vec3 pos, Vec3 scale, Quaternion rot, linalg::aliases::float4x4 a, bool hasmatrix) {
         
         if (node.camera > 0) {
             settings->cam.position = pos;
             cout << "camera found \n";
         }
 
-        //local to world coordinates
-        if (node.translation.size() > 0) {
-            pos = pos + vec3(node.translation[0], node.translation[1], node.translation[2]);
+       
+        if (node.matrix.size() > 0) {
+            //get node matrix
+            linalg::aliases::float4x4 b;
+            for (int x = 0; x < 4; x++) {
+                for (int y = 0; y < 4; y++) {
+                    b[x][y] = node.matrix[(x * 4) + y];
+                }
+            }
+           
+            if (hasmatrix) {
+                a = mul(a, b);
+            }
+            else {
+                a = b;
+            }
+            hasmatrix = true;
         }
-        if (node.scale.size() > 0) {
-            scale = scale * vec3(node.scale[0], node.scale[1], node.scale[2]);
-        }
+        else if(!hasmatrix) {
+            //local to world coordinates
+            if (node.translation.size() > 0) {
+                pos = pos + Vec3(node.translation[0], node.translation[1], node.translation[2]);
+            }
+            if (node.scale.size() > 0) {
+                scale = scale * Vec3(node.scale[0], node.scale[1], node.scale[2]);
+            }
+            if (node.rotation.size() > 0) {
+                Quaternion q;
+                q.x = node.rotation[0];
+                q.y = node.rotation[1];
+                q.z = node.rotation[2];
+                q.w = node.rotation[3];
+                rot = qmul(rot, q);
 
+            }
+
+
+        }
 
 
         //if mesh load vertices
         if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
          
-            createmesh(model, model.meshes[node.mesh], pos, scale);
+            createmesh(model, model.meshes[node.mesh], pos, scale,rot,a ,hasmatrix);
         }
 
         //then check children
         for (size_t i = 0; i < node.children.size(); i++) {
-            gltfnode(model, model.nodes[node.children[i]], pos,scale);
+            gltfnode(model, model.nodes[node.children[i]], pos,scale,rot,a,hasmatrix);
         }
     }
 
@@ -261,7 +340,9 @@ private:
     void creategltfmodel(tinygltf::Model& model) {
         const tinygltf::Scene& scene = model.scenes[model.defaultScene];
         for (size_t i = 0; i < scene.nodes.size(); ++i) {
-            gltfnode(model, model.nodes[scene.nodes[i]], vec3(0), vec3(1));
+            Quaternion rot;
+           linalg::aliases::float4x4 a;
+            gltfnode(model, model.nodes[scene.nodes[i]], Vec3(0), Vec3(1), rot, a, false);
         }
     }
 

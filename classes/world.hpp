@@ -21,9 +21,9 @@ public:
 	}
 
 	 //ray color fucntion
-	 __device__ vec3 color(Ray ray, curandState* seed) {
+	 __device__ Vec3 color(Ray ray, curandState* seed) {
 		 //ray color 
-		 ray.attenuation = vec3(1.0f);
+		 ray.attenuation = Vec3(1.0f);
 		 //max bounces
 		 const int maxdepth = 5;
 
@@ -31,9 +31,9 @@ public:
 		 for (int bounce = 0; bounce < maxdepth; bounce++) {
 			 if (intersect(ray)) {
 				 //calculate additional hit information
-				 vec3 hitpoint = ray.at(distance);
-				 vec3 normal = getnormal() ;
-				 vec3 texcoords = gettexcoords();
+				 Vec3 hitpoint = ray.at(distance);
+				 Vec3 normal = getnormal() ;
+				 Vec3 texcoords = gettexcoords();
 
 				
 				 materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, seed);
@@ -45,16 +45,16 @@ public:
 				 //ray misses
 				 //bg color
 				 float t = 0.5 * (ray.dir.normalized()[1] + 1.0);
-				 return ray.attenuation * (vec3(1.0 - t) * vec3(1.0, 1.0, 1.0) + vec3(t) * vec3(0.1, 0.1, 0.1));
+				 return ray.attenuation * (Vec3(1.0 - t) * Vec3(1.0, 1.0, 1.0) + Vec3(t) * Vec3(0.1, 0.1, 0.1));
 			 }
 		 }
-		 return  vec3(0);
+		 return  Vec3(0);
 	}
 
 private:
 
 	//hit info
-	vec3 uv;
+	Vec3 uv;
 	Tri triangle;
 	float distance;
 	//intersect wolrd
@@ -73,7 +73,7 @@ private:
 			if (currentnode.testbox(ray)) {
 
 				//bvh preview
-				//color = color + vec3(settings.bvhstrength);
+				//color = color + Vec3(settings.bvhstrength);
 				box_index = currentnode.hitnode; //go down tree
 
 				//if is a triangle test triangle
@@ -81,7 +81,7 @@ private:
 
 					//traingle hitoutput
 					float tempdist;
-					vec3 tempuv;
+					Vec3 tempuv;
 
 					if (currentnode.traingle.hit(ray, tempdist, tempuv)) {
 
@@ -105,18 +105,18 @@ private:
 		return ishit;
 	}
 	//get tringle normal from hit
-	__device__ vec3 getnormal() {
-		return ((vec3(1 - uv[0] - uv[1]) * triangle.verts[0].norm) + (vec3(uv[0]) * triangle.verts[1].norm) + (vec3(uv[1]) * triangle.verts[2].norm));
+	__device__ Vec3 getnormal() {
+		return ((Vec3(1 - uv[0] - uv[1]) * triangle.verts[0].norm) + (Vec3(uv[0]) * triangle.verts[1].norm) + (Vec3(uv[1]) * triangle.verts[2].norm));
 	}
-	__device__ vec3 gettexcoords() {
-			return ((vec3(1 - uv[0] - uv[1]) * triangle.verts[0].tex) + (vec3(uv[0]) * triangle.verts[1].tex) + (vec3(uv[1]) * triangle.verts[2].tex));
+	__device__ Vec3 gettexcoords() {
+			return ((Vec3(1 - uv[0] - uv[1]) * triangle.verts[0].tex) + (Vec3(uv[0]) * triangle.verts[1].tex) + (Vec3(uv[1]) * triangle.verts[2].tex));
 	}
 };
 //leftover color modes
-//color = vec3(dist* settings.bvhstrength);
-//color = vec3(uv[0], uv[1], 1 - uv[0] - uv[1]);
+//color = Vec3(dist* settings.bvhstrength);
+//color = Vec3(uv[0], uv[1], 1 - uv[0] - uv[1]);
 //color = triangle.verts[0].pos.normalized();
-//color = vec3(1) - (vec3(1.0f) / color);
+//color = Vec3(1) - (Vec3(1.0f) / color);
 //	bool isfront = ray.dir.dot(normal) < 0;
-//vec3 newnorm = isfront ? normal : normal * vec3(-1);
+//Vec3 newnorm = isfront ? normal : normal * Vec3(-1);
 		

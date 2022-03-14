@@ -90,10 +90,10 @@ public:
       //  ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f,0.5f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::SliderFloat("roughness", &settings->bvhstrength,0,1);
 
-        vec3 before = settings->cam.position;
+        Vec3 before = settings->cam.position;
         ImGui::DragFloat3("camera position", settings->cam.position.values);
         //temporary update solution
-        vec3 after = settings->cam.position;
+        Vec3 after = settings->cam.position;
         if (before[0] != after[0] || before[1] != after[1] || before[2] != after[2]) {
             settings->samples = 0;
         }

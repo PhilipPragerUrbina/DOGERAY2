@@ -1,21 +1,21 @@
 #pragma once
 #include"texture.hpp"
-//gpu random sphere vec3 function for matirals
+//gpu random sphere Vec3 function for matirals
 //moved to other class later
 /*
 //try to remove while loop
-__device__ vec3 randomvec3insphere(curandState* seed) {
+__device__ Vec3 randomvec3insphere(curandState* seed) {
     while (true) {
-        vec3 p = vec3((curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f);
+        Vec3 p = Vec3((curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f);
         if (pow(p.length(), 2.0f) >= 1) continue;
         return p;
     }
 }*/
-__device__ vec3 randomvec3insphere(curandState* seed) {
-    vec3 p = vec3(curand_normal_double(seed), curand_normal_double(seed), curand_normal_double(seed));
+__device__ Vec3 randomvec3insphere(curandState* seed) {
+    Vec3 p = Vec3(curand_normal_double(seed), curand_normal_double(seed), curand_normal_double(seed));
     return p / p.length();
 }
-__device__ vec3 checker(vec3 uv, vec3 col1, vec3 col2) {
+__device__ Vec3 checker(Vec3 uv, Vec3 col1, Vec3 col2) {
     float u2 = floor(uv[0] * 10);
     float v2 = floor(uv[1] * 10);
     float yes = u2 + v2;
@@ -30,7 +30,7 @@ __device__ vec3 checker(vec3 uv, vec3 col1, vec3 col2) {
 class Mat {
 public:
     //mat properties. Uses PBR inputs. 
-    vec3 colorfactor = vec3(0.5,0.5,0.5);
+    Vec3 colorfactor = Vec3(0.5,0.5,0.5);
     Texture colortexture;
 
     float metalfactor = 0.5;
@@ -42,7 +42,7 @@ public:
 
     //id for material creation in host(prevent duplicates)
     int id = 0;
-    Mat(int ident, vec3 col, float metal, float rough) {
+    Mat(int ident, Vec3 col, float metal, float rough) {
         id = ident;
         colorfactor = col;
         metalfactor = metal;
@@ -50,7 +50,7 @@ public:
     }
 
 
-    __device__  void interact(Ray* ray, vec3 texcoords , vec3 hitpoint, vec3 normal, curandState* seed) {
+    __device__  void interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, curandState* seed) {
      
         if (normaltexture.exists) {
             normal = normal + (normaltexture.get(texcoords) * 2.0f - 1.0f);
@@ -62,13 +62,13 @@ public:
         }
 
         //calculate direction
-        vec3 reflected = ray->dir.normalized().reflected(normal);
-        ray->dir = reflected + vec3(rough) * randomvec3insphere(seed);
+        Vec3 reflected = ray->dir.normalized().reflected(normal);
+        ray->dir = reflected + Vec3(rough) * randomvec3insphere(seed);
 
        
-        //ray->attenuation = ray->attenuation * checker(texcoords, vec3(0.8,0.5, 0.5), vec3(0.5, 0.8, 0.5));
+        //ray->attenuation = ray->attenuation * checker(texcoords, Vec3(0.8,0.5, 0.5), Vec3(0.5, 0.8, 0.5));
 
-        vec3 color = colorfactor;
+        Vec3 color = colorfactor;
         if (colortexture.exists) {
             color = color * colortexture.get(texcoords);
         }
@@ -84,9 +84,9 @@ public:
 /*
 //diffuse amt
 class Diffuse {
-    __device__ virtual void interact(Ray* ray, vec3 hitpoint, vec3 normal,curandState* seed) {
+    __device__ virtual void interact(Ray* ray, Vec3 hitpoint, Vec3 normal,curandState* seed) {
         //calc direction
-        vec3 target = hitpoint + normal + randomvec3insphere(seed);
+        Vec3 target = hitpoint + normal + randomvec3insphere(seed);
         ray->dir = (target - hitpoint).normalized();
         //update ray
         ray->origin = hitpoint;
@@ -97,10 +97,10 @@ class Diffuse {
 //reflective mat
 //atribute 1 is rougnesss
 class Metal : public Mat {
-    __device__ virtual void interact(Ray* ray, vec3 hitpoint, vec3 normal, curandState* seed) {
+    __device__ virtual void interact(Ray* ray, Vec3 hitpoint, Vec3 normal, curandState* seed) {
         //calculate direction
-        vec3 reflected = ray->dir.normalized().reflected(normal);
-        ray->dir = reflected + vec3(attribute1) * randomvec3insphere(seed);
+        Vec3 reflected = ray->dir.normalized().reflected(normal);
+        ray->dir = reflected + Vec3(attribute1) * randomvec3insphere(seed);
         //update ray
         ray->origin = hitpoint;
         ray->attenuation = ray->attenuation * color;

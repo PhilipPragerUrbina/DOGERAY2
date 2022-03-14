@@ -15,11 +15,11 @@ public:
     //Is this texture not empty?
     bool exists = false;
 
-    //get vec3 from texture
-    __device__ vec3 get(vec3 uv) {
+    //get Vec3 from texture
+    __device__ Vec3 get(Vec3 uv) {
         //TODO if other textures appear. Make sure to check what type it should access. Uchar4, Uchar3, Short4, short3, etc
         uchar4 texdata = tex2D<uchar4>(texture, uv[0], uv[1]);
-        return vec3(float(texdata.x) / 255, float(texdata.y) / 255, float(texdata.z) / 255);
+        return Vec3(float(texdata.x) / 255, float(texdata.y) / 255, float(texdata.z) / 255);
     }
 
     //you may be wondering why this isnt a constructor and destructor the reason is that this is allocating memory on the GPU so it only should be called once during the lifetime of the program

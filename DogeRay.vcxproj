@@ -108,6 +108,7 @@
     <ClInclude Include="libraries\imgui\imstb_textedit.h" />
     <ClInclude Include="libraries\imgui\imstb_truetype.h" />
     <ClInclude Include="libraries\json.hpp" />
+    <ClInclude Include="libraries\linalg.h" />
     <ClInclude Include="libraries\stb_image.h" />
     <ClInclude Include="libraries\stb_image_write.h" />
     <ClInclude Include="libraries\tiny_gltf.h" />

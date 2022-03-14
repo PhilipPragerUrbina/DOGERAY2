@@ -7,10 +7,10 @@
 class Camera {
 public:
     //camera settings
-	vec3 position;
-    vec3 lookposition;
+	Vec3 position;
+    Vec3 lookposition;
     float degreefov = 45;
-    vec3 up;
+    Vec3 up;
    
     //calculate camera paramters
     void calculate() {
@@ -20,19 +20,19 @@ public:
         float viewportheight = 2.0 * h;
         float viewportwidth = aspectratio * viewportheight;
        
-        vec3 w = (position - lookposition).normalized();
-        vec3 u = up.cross(w).normalized();
+        Vec3 w = (position - lookposition).normalized();
+        Vec3 u = up.cross(w).normalized();
         auto v = w.cross(u);
 
         //set values for ray generation on gpu
-        horizontal = vec3(viewportwidth) * u;
-        vertical = vec3(viewportheight) * v;
+        horizontal = Vec3(viewportwidth) * u;
+        vertical = Vec3(viewportheight) * v;
         llc = position - horizontal / 2 - vertical / 2 - w;
     }
 
     //get ray on device
     __device__ Ray getray(float u, float v) {
-        return Ray(position, llc + vec3(u) * horizontal + vec3(v) * vertical - position);
+        return Ray(position, llc + Vec3(u) * horizontal + Vec3(v) * vertical - position);
     }
 
     void calcaspectratio(int width, int height) {
@@ -44,7 +44,7 @@ private:
     float radfov;
     float aspectratio = 1;
     //lower left corner
-    vec3 llc;
-    vec3 horizontal;
-    vec3 vertical;
+    Vec3 llc;
+    Vec3 horizontal;
+    Vec3 vertical;
 };

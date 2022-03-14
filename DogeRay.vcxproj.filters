@@ -70,6 +70,7 @@
     <ClInclude Include="classes\program.hpp" />
     <ClInclude Include="classes\mat.hpp" />
     <ClInclude Include="classes\texture.hpp" />
+    <ClInclude Include="libraries\linalg.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />
