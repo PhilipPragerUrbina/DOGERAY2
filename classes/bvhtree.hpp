@@ -110,6 +110,7 @@ public:
 		//split
 		std::cout << "building BVH \n";
 		recursivesplit(traingles);
+		std::cout << "linking BVH \n";
 		//link
 		createlinks(0, -1);
 		std::cout << "BVH built! \n";

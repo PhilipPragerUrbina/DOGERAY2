@@ -12,41 +12,11 @@
 //include triangle classs
 #include "tri.hpp"
 #include "config.hpp"
-//TODO add to github docs
 //needed for transformations
 #include <linalg.h>
 
 //for output
 using namespace std;
-
-//struct to stroe gltf rotation values
-struct Quaternion {
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float w = 1;
-};
-//fucntion for rotating point by quaternion
-Vec3 rotated(Vec3 v, Quaternion q)
-{
-    if (q.x == 0 && q.y == 0 && q.z == 0 && q.w == 1) {
-        return v;
-    }
-    Vec3 u(q.x, q.y, q.z);
-    float s = q.w;
-    // Do the math
-    return Vec3(2.0f * u.dot(v)) * u
-        + Vec3(s * s - u.dot(u)) * v
-        + Vec3(2.0f * s) * u.cross(v);
-}
-Quaternion qmul(Quaternion q1, Quaternion q2) {
-    Quaternion out;
-    out.x = q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x;
-    out.y = -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y;
-    out.z = q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z;
-    out.w = -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w;
-    return out;
-}
 
 //class for loading 3d files from gltf
 //TODO create loader base class and create multiple file types
@@ -84,6 +54,11 @@ public:
         if (loadedtris.size() == 0) {
             std::cerr << "no tris found \n";
         }
+        if (!camerafound) {
+            settings->cam.position = Vec3(farx * 4, 1, 1);
+            cout << "No camera found \n";
+            cout << "Automatically created camera at: " << settings->cam.position << "\n";
+        }
         //print info
         if (containsnontris) { cout << "warning: Model may contain non tris \n"; }
         cout << "GLTF model parsed succesfully! \n";
@@ -94,7 +69,9 @@ public:
 private:
     config* settings;
     bool containsnontris = false;
-
+    bool camerafound = false;
+    //for choosing aoutomatic camera pos
+    float farx = 0;
     //use library to open up model
     tinygltf::Model loadgltfmodel(string filename) {
         tinygltf::TinyGLTF gltfloader;
@@ -129,7 +106,7 @@ private:
     }
 
     //create triangles from GLTF mesh and set attributes
-    void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, Vec3 pos, Vec3 scale, Quaternion rot, linalg::aliases::float4x4 a, bool hasmatrix) {
+    void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, linalg::aliases::float4x4 globalmatrix) {
         //for each tri
         for (size_t i = 0; i < mesh.primitives.size(); ++i) {
             //set up material
@@ -150,10 +127,7 @@ private:
                 //get gltf matirial
                 auto gltfmat = model.materials[mesh.primitives[i].material];
                 //set color
-                Vec3 color;
-                color[0] = gltfmat.pbrMetallicRoughness.baseColorFactor[0];
-                color[1] = gltfmat.pbrMetallicRoughness.baseColorFactor[1];
-                color[2] = gltfmat.pbrMetallicRoughness.baseColorFactor[2];
+                Vec3 color(gltfmat.pbrMetallicRoughness.baseColorFactor[0], gltfmat.pbrMetallicRoughness.baseColorFactor[1], gltfmat.pbrMetallicRoughness.baseColorFactor[2]);
                 //create and add mat
                 Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor);
                
@@ -241,20 +215,23 @@ private:
                 }
 
                 //set pos
-                newtri.verts[e].pos = rotated(Vec3(positions[index * 3 + 0], positions[index * 3 + 1], positions[index * 3 + 2]) * scale, rot) +pos;
-                if (hasmatrix) {
-                    //if there is matrix. Transofrm point
+                newtri.verts[e].pos =Vec3(positions[index * 3 + 0], positions[index * 3 + 1], positions[index * 3 + 2]);
+                    //apply matrix transform on point
+                    //change point to linalg vector 4
                     linalg::aliases::float4 old;
                     old.x = newtri.verts[e].pos[0];
                     old.y = newtri.verts[e].pos[1];
                     old.z = newtri.verts[e].pos[2];
                     old.w = 1;
-                    using namespace linalg::aliases;
-                    old = mul( a,old);
+                    //apply matrix
+                    old = mul(globalmatrix,old);
+                    //update vert
                     newtri.verts[e].pos[0] = old.x;
                     newtri.verts[e].pos[1] = old.y;
                     newtri.verts[e].pos[2] = old.z;
-                }
+                    if (old.x > farx) {
+                        farx = old.x;
+                    }
 
                 //set norm 
                 newtri.verts[e].norm = Vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
@@ -277,62 +254,96 @@ private:
 
     //traverse gltf nodes
     void gltfnode(tinygltf::Model& model,
-        tinygltf::Node& node, Vec3 pos, Vec3 scale, Quaternion rot, linalg::aliases::float4x4 a, bool hasmatrix) {
-        
-        if (node.camera > 0) {
-            settings->cam.position = pos;
-            cout << "camera found \n";
-        }
-
-       
+        tinygltf::Node& node, linalg::aliases::float4x4 globalmatrix, bool first) {
+      
+       //check if node has matrix
         if (node.matrix.size() > 0) {
             //get node matrix
-            linalg::aliases::float4x4 b;
+            linalg::aliases::float4x4 localmatrix;
             for (int x = 0; x < 4; x++) {
                 for (int y = 0; y < 4; y++) {
-                    b[x][y] = node.matrix[(x * 4) + y];
+                    localmatrix[x][y] = node.matrix[(x * 4) + y];
                 }
             }
-           
-            if (hasmatrix) {
-                a = mul(a, b);
+            //update global transform
+            if (first) {
+                first = false;
+                globalmatrix = localmatrix;
             }
             else {
-                a = b;
+                globalmatrix = mul(globalmatrix,localmatrix);
             }
-            hasmatrix = true;
+         
+
         }
-        else if(!hasmatrix) {
-            //local to world coordinates
+        else{
+            //does not have matrix. Needs to be created from TRS
+            //create translation matrix
+            linalg::aliases::float4x4 translationmatrix = linalg::identity;
             if (node.translation.size() > 0) {
-                pos = pos + Vec3(node.translation[0], node.translation[1], node.translation[2]);
+                translationmatrix[3][0] = node.translation[0];
+                translationmatrix[3][1] = node.translation[1];
+                translationmatrix[3][2] = node.translation[2];
             }
-            if (node.scale.size() > 0) {
-                scale = scale * Vec3(node.scale[0], node.scale[1], node.scale[2]);
-            }
+            using namespace linalg::ostream_overloads;
+            //create rotation matrix
+            linalg::aliases::float4 rotation{ 0,0,0,1 };
             if (node.rotation.size() > 0) {
-                Quaternion q;
-                q.x = node.rotation[0];
-                q.y = node.rotation[1];
-                q.z = node.rotation[2];
-                q.w = node.rotation[3];
-                rot = qmul(rot, q);
-
+                rotation.x = node.rotation[0];
+                rotation.y = node.rotation[1];
+                rotation.z = node.rotation[2];
+                rotation.w = node.rotation[3];
             }
-
+            linalg::aliases::float4x4 rotationmatrix = linalg::identity;
+            linalg::aliases::float3x3 smallrotationmatrix= qmat(rotation);
+            //convert to mat4
+            for (int x = 0; x < 3; x++) {
+                for (int y = 0; y < 3; y++) {
+                    rotationmatrix[x][y] = smallrotationmatrix[x][y];
+                }
+            }
+            //create scale amtrix
+            linalg::aliases::float4x4 scalematrix = linalg::identity;
+            if (node.scale.size() > 0) {
+                scalematrix[0][0] = node.scale[0];
+                scalematrix[1][1] = node.scale[1];
+                scalematrix[2][2] = node.scale[2];
+            }
+            //get local matrix
+            linalg::aliases::float4x4 localmatrix = mul(mul(translationmatrix, rotationmatrix), scalematrix);
+          
+         
+            //apply transformation
+            if (first) {
+                first = false;
+                globalmatrix = localmatrix;
+            }
+            else {
+                globalmatrix = mul(globalmatrix,localmatrix);
+            }
 
         }
 
+
+        if (node.camera > 0 && !camerafound) {
+            linalg::aliases::float4 old{ 0,0,0,1 };
+            //apply matrix
+            old = mul(globalmatrix, old);
+            //update vert
+            Vec3 campos(old.x, old.y, old.z);
+            settings->cam.position = campos; 
+            camerafound = true;
+            cout << "camera found at: " << campos << "\n";
+        }
 
         //if mesh load vertices
         if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
-         
-            createmesh(model, model.meshes[node.mesh], pos, scale,rot,a ,hasmatrix);
+            createmesh(model, model.meshes[node.mesh],globalmatrix);
         }
 
         //then check children
         for (size_t i = 0; i < node.children.size(); i++) {
-            gltfnode(model, model.nodes[node.children[i]], pos,scale,rot,a,hasmatrix);
+            gltfnode(model, model.nodes[node.children[i]], globalmatrix, first);
         }
     }
 
@@ -340,9 +351,8 @@ private:
     void creategltfmodel(tinygltf::Model& model) {
         const tinygltf::Scene& scene = model.scenes[model.defaultScene];
         for (size_t i = 0; i < scene.nodes.size(); ++i) {
-            Quaternion rot;
-           linalg::aliases::float4x4 a;
-            gltfnode(model, model.nodes[scene.nodes[i]], Vec3(0), Vec3(1), rot, a, false);
+           linalg::aliases::float4x4 globalmatrix = linalg::identity;
+            gltfnode(model, model.nodes[scene.nodes[i]], globalmatrix, true);
         }
     }
 

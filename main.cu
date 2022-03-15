@@ -8,10 +8,6 @@ int main(int argc, char* args[])
     std::string filename = "defualt.gltf";
     if (argc > 1)  filename = args[1];
 
-    //defualt settings
-    raytracer.settings.cam.position = Vec3(1, 1, 100);
-    raytracer.settings.cam.lookposition = Vec3(0, 0, 0);
-    raytracer.settings.cam.up = Vec3(0, 1, 0);
     //width and height
     int wi = 1280;
     int h = 720;

@@ -21,7 +21,7 @@ public:
 	}
 
 	 //ray color fucntion
-	 __device__ Vec3 color(Ray ray, curandState* seed) {
+	 __device__ Vec3 color(Ray ray, Noise noise) {
 		 //ray color 
 		 ray.attenuation = Vec3(1.0f);
 		 //max bounces
@@ -36,7 +36,7 @@ public:
 				 Vec3 texcoords = gettexcoords();
 
 				
-				 materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, seed);
+				 materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, noise);
 				
 
 			
@@ -45,10 +45,10 @@ public:
 				 //ray misses
 				 //bg color
 				 float t = 0.5 * (ray.dir.normalized()[1] + 1.0);
-				 return ray.attenuation * (Vec3(1.0 - t) * Vec3(1.0, 1.0, 1.0) + Vec3(t) * Vec3(0.1, 0.1, 0.1));
+				 return ray.attenuation * (Vec3(1.0 - t) * Vec3(1.5) + Vec3(t) * Vec3(0.1, 0.1, 0.1));
 			 }
 		 }
-		 return  Vec3(0);
+		 return   ray.attenuation;
 	}
 
 private:

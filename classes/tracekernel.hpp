@@ -8,35 +8,33 @@
 //the actual ray tarce kernel. It cannot be a member function
 __global__ void raytracekernel(uint8_t* image,World scene) {
 	//get indexes 
-	//TODO optimize indexes
 	int x = blockIdx.x * blockDim.x + threadIdx.x;
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
 	int w = (y * scene.settings.w + x) * 3;
-
-	//set up curand withs eed
-	curandState seed;
-	curand_init((unsigned long long)clock() + (x + y * blockDim.x * gridDim.x), 0, 0, &seed);
+	
+	Noise noise(x,y);
+	
 	//create randomized uv coords of image
-	float u = (x + curand_uniform_double(&seed)) / (scene.settings.w - 1);
-	float v = (y + curand_uniform_double(&seed))/ (scene.settings.h - 1);
+	float u = (x + noise.rand()) / (scene.settings.w - 1);
+	float v = (y + noise.rand())/ (scene.settings.h - 1);
 	
 	//gnerate ray
-	Ray currentray = scene.settings.cam.getray(u, v);
+	Ray currentray = scene.settings.cam.getray(u, v, noise.unitdisk());
 	//trace ray
-	Vec3 color = scene.color(currentray,&seed);
+	Vec3 color = scene.color(currentray,noise);
 
-	//set image color if first sample(mult by 255 since color are currently in randge of 0-1)
+	//set image color if first sample(mult by 255 and clamp since color are currently in randge of 0-1)
 	if (scene.settings.samples == 0) {
-		image[w    ] = color[0] * 255;
-		image[w + 1] = color[1] * 255;
-		image[w + 2] = color[2] * 255;
+		image[w    ] = fmin(color[0] * 255, 255.0f);
+		image[w + 1] = fmin(color[1] * 255, 255.0f);
+		image[w + 2] = fmin(color[2] * 255, 255.0f);
 	}
 	else {
 		//if not first sample, contenusly update average of output
 		//we add to the average rather than calculating it in order to avoid having divide on the host side
-		image[w    ] = (scene.settings.samples * image[w    ] + (color[0] * 255)) / (scene.settings.samples + 1);
-		image[w + 1] = (scene.settings.samples * image[w + 1] + (color[1] * 255)) / (scene.settings.samples + 1);
-		image[w + 2] = (scene.settings.samples * image[w + 2] + (color[2] * 255)) / (scene.settings.samples + 1);
+		image[w    ] = (scene.settings.samples * image[w    ] + fmin(color[0] * 255, 255.0f)) / (scene.settings.samples + 1);
+		image[w + 1] = (scene.settings.samples * image[w + 1] + fmin(color[1] * 255, 255.0f)) / (scene.settings.samples + 1);
+		image[w + 2] = (scene.settings.samples * image[w + 2] + fmin(color[2] * 255,255.0f)) / (scene.settings.samples + 1);
 	}
 }
 

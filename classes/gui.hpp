@@ -88,7 +88,8 @@ public:
       //  ImGui::Checkbox("Another Window", &show_another_window);
      
       //  ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f,0.5f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::SliderFloat("roughness", &settings->bvhstrength,0,1);
+        ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
+        ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
 
         Vec3 before = settings->cam.position;
         ImGui::DragFloat3("camera position", settings->cam.position.values);

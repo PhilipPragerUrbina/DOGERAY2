@@ -1,29 +1,44 @@
 #pragma once
 #include"texture.hpp"
-//gpu random sphere Vec3 function for matirals
-//moved to other class later
-/*
-//try to remove while loop
-__device__ Vec3 randomvec3insphere(curandState* seed) {
-    while (true) {
+#include <curand_kernel.h>
+//class for handling randomness on device
+class Noise {
+public:
+    __device__ Noise(int x, int y) {
+        //set up curand withs seed
+        curand_init((unsigned long long)clock() + (x + y * blockDim.x * gridDim.x), 0, 0, &seed);
+    }
+    __device__ Vec3 unitsphere() {
+        //random in unit sphere
+        Vec3 p = Vec3(curand_normal_double(&seed), curand_normal_double(&seed), curand_normal_double(&seed));
+        return p / p.length();
+    }
+    __device__ Vec3 unitdisk() {
+            auto p = Vec3(curand_normal_double(&seed)*2-1, curand_normal_double(&seed)*2-1, 0);
+            return p / p.length();
+    }
+    //random float
+    __device__ float rand() {
+        return curand_uniform_double(&seed);
+    }
+    /*  while (true) {
         Vec3 p = Vec3((curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f, (curand_uniform_double(seed) * 2.0f) - 1.0f);
         if (pow(p.length(), 2.0f) >= 1) continue;
         return p;
-    }
-}*/
-__device__ Vec3 randomvec3insphere(curandState* seed) {
-    Vec3 p = Vec3(curand_normal_double(seed), curand_normal_double(seed), curand_normal_double(seed));
-    return p / p.length();
-}
-__device__ Vec3 checker(Vec3 uv, Vec3 col1, Vec3 col2) {
-    float u2 = floor(uv[0] * 10);
-    float v2 = floor(uv[1] * 10);
-    float yes = u2 + v2;
-    if (fmod(yes, (float)2) == 0)
-        return col1;
-    else
-        return col2;
-}
+    }*/
+private:
+    //store state
+    curandState seed;
+};
+
+
+
+
+
+
+
+
+
 //I orignally wanted to use runtime polymorphism or function pointers. This proved to be very diffucult to copy from host to device without significant complexity.
 //matirial  class
 //decided to combine prev shaders into unversal PBR material to work better with GLTF and to avoid polymorphism problems
@@ -50,7 +65,7 @@ public:
     }
 
 
-    __device__  void interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, curandState* seed) {
+    __device__  void interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, Noise noise) {
      
         if (normaltexture.exists) {
             normal = normal + (normaltexture.get(texcoords) * 2.0f - 1.0f);
@@ -63,10 +78,7 @@ public:
 
         //calculate direction
         Vec3 reflected = ray->dir.normalized().reflected(normal);
-        ray->dir = reflected + Vec3(rough) * randomvec3insphere(seed);
-
-       
-        //ray->attenuation = ray->attenuation * checker(texcoords, Vec3(0.8,0.5, 0.5), Vec3(0.5, 0.8, 0.5));
+        ray->dir = reflected + Vec3(rough) * noise.unitsphere();
 
         Vec3 color = colorfactor;
         if (colortexture.exists) {
@@ -135,5 +147,4 @@ class Metal : public Mat {
 
             }
 };*/
-
 
