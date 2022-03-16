@@ -68,7 +68,7 @@ public:
     __device__  void interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, Noise noise) {
      
         if (normaltexture.exists) {
-            normal = normal + (normaltexture.get(texcoords) * 2.0f - 1.0f);
+          //  normal = normal * (normaltexture.get(texcoords) * 2.0 - 1.0).normalized();
         }
 
         float rough = roughfactor;
@@ -90,6 +90,9 @@ public:
         ray->attenuation = ray->attenuation * color;
 
     };
+
+
+
 };
 
 

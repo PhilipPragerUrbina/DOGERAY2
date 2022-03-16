@@ -25,7 +25,7 @@ public:
 		 //ray color 
 		 ray.attenuation = Vec3(1.0f);
 		 //max bounces
-		 const int maxdepth = 5;
+		 const int maxdepth = 3;
 
 		 //for each ray bounce
 		 for (int bounce = 0; bounce < maxdepth; bounce++) {
@@ -44,7 +44,7 @@ public:
 			 else {
 				 //ray misses
 				 //bg color
-				 float t = 0.5 * (ray.dir.normalized()[1] + 1.0);
+				 float t = 0.5 * (-ray.dir.normalized()[1] + 1.0);
 				 return ray.attenuation * (Vec3(1.0 - t) * Vec3(1.5) + Vec3(t) * Vec3(0.1, 0.1, 0.1));
 			 }
 		 }

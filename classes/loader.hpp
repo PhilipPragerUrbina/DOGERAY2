@@ -55,8 +55,19 @@ public:
             std::cerr << "no tris found \n";
         }
         if (!camerafound) {
-            settings->cam.position = Vec3(farx * 4, 1, 1);
             cout << "No camera found \n";
+            //no camera found in file. Auto generate one
+            //choose between x or z axis for camera
+            int axis = 0;
+            if (maxdim[2] < maxdim[0]) {
+                //axis which camera is on is the axis with the least max dimesions(least width)
+                //this is so we get a side view of the object
+                axis = 2;
+            }
+            Vec3 campos{ 0 };
+            campos[axis] = (maxdim[0] + maxdim[2])*4;
+            cout << "max x: " << maxdim[0] << "max z :" << maxdim[2] << "\n";
+            settings->cam.position = campos;
             cout << "Automatically created camera at: " << settings->cam.position << "\n";
         }
         //print info
@@ -71,7 +82,7 @@ private:
     bool containsnontris = false;
     bool camerafound = false;
     //for choosing aoutomatic camera pos
-    float farx = 0;
+    Vec3 maxdim{0};
     //use library to open up model
     tinygltf::Model loadgltfmodel(string filename) {
         tinygltf::TinyGLTF gltfloader;
@@ -229,8 +240,12 @@ private:
                     newtri.verts[e].pos[0] = old.x;
                     newtri.verts[e].pos[1] = old.y;
                     newtri.verts[e].pos[2] = old.z;
-                    if (old.x > farx) {
-                        farx = old.x;
+                    //set new max dimensions for camera postioning algorthm
+                    if (old.x > maxdim[0]) {
+                        maxdim[0] = old.x;
+                    }
+                    if (old.z > maxdim[2]) {
+                        maxdim[2] = old.z;
                     }
 
                 //set norm 
