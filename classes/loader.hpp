@@ -66,7 +66,6 @@ public:
             }
             Vec3 campos{ 0 };
             campos[axis] = (maxdim[0] + maxdim[2])*4;
-            cout << "max x: " << maxdim[0] << "max z :" << maxdim[2] << "\n";
             settings->cam.position = campos;
             cout << "Automatically created camera at: " << settings->cam.position << "\n";
         }
@@ -340,7 +339,7 @@ private:
         }
 
 
-        if (node.camera > 0 && !camerafound) {
+        if (node.camera > -1 && !camerafound) {
             linalg::aliases::float4 old{ 0,0,0,1 };
             //apply matrix
             old = mul(globalmatrix, old);
