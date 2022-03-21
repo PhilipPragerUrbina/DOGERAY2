@@ -27,7 +27,7 @@ public:
         if (SDL_Init(SDL_INIT_VIDEO) >= 0)
         {
             //create SDL window
-            SDLwindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+            SDLwindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
             //create SDL renderer
             SDLrenderer = SDL_CreateRenderer(SDLwindow, 0, 0);
             //create texture
@@ -80,6 +80,16 @@ public:
 
         //delete surface
         SDL_FreeSurface(tempsurface);
+    }
+    void resizeresolution(config settings) {
+        width = settings.w;
+        height = settings.h;
+        SDL_DestroyTexture(SDLtexture);
+        SDLtexture = SDL_CreateTexture(SDLrenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, settings.w, settings.h);
+
+    }
+    void getsize(int* w, int* h) {
+        SDL_GetWindowSize(SDLwindow,  w,h);
     }
 
 private:

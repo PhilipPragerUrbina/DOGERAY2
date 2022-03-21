@@ -11,14 +11,16 @@ struct vertex {
 };
 //boundning box struct
 struct boundingbox {
-	Vec3 max;
-	Vec3 min;
+	Vec3 max{ 10000000000000 };
+	Vec3 min{ -1000000000000 };
 	Vec3 center;
+	
 };
 
 //tiangle class
 class Tri {
 public:
+
 
 	boundingbox box;
 	vertex verts[3];
@@ -33,6 +35,7 @@ public:
 		box.center = (box.min + box.max) / Vec3(2.0f);
 		return box;
 	}
+	
 
 	__device__ bool hit(Ray ray, float& dist, Vec3& uv) {
 
@@ -43,7 +46,7 @@ public:
 
 		//floating point error range. Larger for larger objects to avoid speckling problem.
 		//TODO either create system for choosig n epslon or  make file coords smaller
-		const float epsilon = 0.0001f;
+		const float epsilon = 0.000001f;
 		if (fabs(det) < epsilon) return false;
 
 		float invDet = 1.0f / det;
@@ -56,7 +59,8 @@ public:
 		if (uv[1] < 0.0f || uv[0] + uv[1] > 1.0f) return false;
 
 		dist = v0v2.dot(qvec) * invDet;
-		if (dist > epsilon) //check if in small range. this si to stop ray from intersecting with traingle again after bounce.
+		const float delta = 0.0001f;
+		if (dist > delta) //check if in small range. this si to stop ray from intersecting with traingle again after bounce.
 		{
 			return true;
 		}

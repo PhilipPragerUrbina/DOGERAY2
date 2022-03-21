@@ -25,7 +25,7 @@ public:
 		 //ray color 
 		 ray.attenuation = Vec3(1.0f);
 		 //max bounces
-		 const int maxdepth = 3;
+		 const int maxdepth = 1;
 
 		 //for each ray bounce
 		 for (int bounce = 0; bounce < maxdepth; bounce++) {
@@ -48,6 +48,7 @@ public:
 				 return ray.attenuation * (Vec3(1.0 - t) * Vec3(1.5) + Vec3(t) * Vec3(0.1, 0.1, 0.1));
 			 }
 		 }
+		 ray.attenuation = Vec3(number/255.0f);
 		 return   ray.attenuation;
 	}
 
@@ -57,8 +58,10 @@ private:
 	Vec3 uv;
 	Tri triangle;
 	float distance;
+	int number = 0;
 	//intersect wolrd
 	__device__ bool intersect(Ray ray) {
+		int dir = getbvhdirection(ray);
 		//minimum distance so far
 		float mindist = 100000;
 		//as soemthing hot
@@ -66,15 +69,16 @@ private:
 		//stackless bvh traversal from paper
 		int box_index = 0;
 
+
+
 		while (box_index != -1) {
+			number++;
 			//get current node
 			bvhnode currentnode = tree[box_index];
 			//test node
 			if (currentnode.testbox(ray)) {
 
-				//bvh preview
-				//color = color + Vec3(settings.bvhstrength);
-				box_index = currentnode.hitnode; //go down tree
+			
 
 				//if is a triangle test triangle
 				if (currentnode.isleaf) {
@@ -92,17 +96,23 @@ private:
 							triangle = currentnode.traingle;
 							uv = tempuv;
 							ishit = true;
+
+							
 						}
 
 					}
+
 				}
+				//bvh preview
+			//color = color + Vec3(settings.bvhstrength);
+				box_index = currentnode.hitnode[dir]; //go down tree
 			}
 			else {
 				//missed go up the tree
-				box_index = currentnode.missnode; 
+				box_index = currentnode.missnode[dir]; 
 			}
 		}
-		return ishit;
+		return true;
 	}
 	//get tringle normal from hit
 	__device__ Vec3 getnormal() {
@@ -110,6 +120,16 @@ private:
 	}
 	__device__ Vec3 gettexcoords() {
 			return ((Vec3(1 - uv[0] - uv[1]) * triangle.verts[0].tex) + (Vec3(uv[0]) * triangle.verts[1].tex) + (Vec3(uv[1]) * triangle.verts[2].tex));
+	}
+	__device__ int getbvhdirection(Ray ray) {
+
+		Vec3 absdir = Vec3(abs(ray.dir[0]), abs(ray.dir[1]), abs(ray.dir[2]));
+		int a = absdir.extent();
+		if (ray.dir[a] < 0) {
+			return a + 3;
+		}
+	
+		return a;
 	}
 };
 //leftover color modes

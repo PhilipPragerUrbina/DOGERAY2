@@ -9,6 +9,7 @@ public:
 	//image width and height
 	int w;
 	int h;
+	float scale = 1;
 	//strength of bvh preview
 	float bvhstrength = 0.01;
 	//camera

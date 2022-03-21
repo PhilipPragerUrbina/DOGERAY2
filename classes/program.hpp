@@ -101,10 +101,14 @@ public:
         shader = new Tracekernel(settings, finishedtree, materials);
         //start initial render
         thread renderthread(render, settings, data, win, shader);
+        prevw = settings.w;
+        prevh = settings.h;
         //main loop
         while (!gui->exit) {
             //update settings with gui input
+           
             gui->update(&settings);
+           
 
             //check if render is done
             if (threaddone) {
@@ -120,10 +124,39 @@ public:
                     settings.saveimage = false;
                 }
 
+                //get window size in case resized
+                win->getsize(&settings.w, &settings.h);
+             
+
+                //apply user modifier
+                settings.w *= settings.scale;
+                settings.h *= settings.scale;
+
+                //make even
+                settings.w = 8 * int(settings.w / 8);
+                settings.h = 8 * int(settings.h / 8);
+
+            
+            
+
+              
+            
+                if (prevw != settings.w || prevh != settings.h) {
+                    //resolution chnaged
+                    shader->resize(settings);
+                    win->resizeresolution(settings);
+                    settings.cam.calcaspectratio(settings.w, settings.h);
+                    prevw = settings.w;
+                    prevh = settings.h;
+                    settings.samples = 0;
+                }
+
                 //start thread
                 renderthread = thread(render, settings, data, win, shader);
                 //increment samples
                 settings.samples++;
+
+               
            }
         }
         //wait for thread to finsih before exiting
@@ -133,7 +166,9 @@ public:
     }
 
 private:
-
+    //prev dimensions
+    int prevw;
+    int prevh;
     void buildbvh() {
         //create tree
         tree = new Bvhtree(file->loadedtris);

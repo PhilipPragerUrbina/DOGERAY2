@@ -24,7 +24,7 @@ __global__ void raytracekernel(uint8_t* image,World scene) {
 	Vec3 color = scene.color(currentray,noise);
 
 	//set image color if first sample(mult by 255 and clamp since color are currently in randge of 0-1)
-	if (scene.settings.samples == 0) {
+	if (scene.settings.samples <= 0) {
 		image[w    ] = fmin(color[0] * 255, 255.0f);
 		image[w + 1] = fmin(color[1] * 255, 255.0f);
 		image[w + 2] = fmin(color[2] * 255, 255.0f);
@@ -124,6 +124,14 @@ public:
 	//display render time
 	void rendertime() {
 		std::cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+	}
+	void resize(config settings) {
+		cudaFree(device_image);
+		threadsPerBlock = dim3(8, 8);
+		numBlocks = dim3(settings.w / threadsPerBlock.x, settings.h / threadsPerBlock.y);
+		imagesize = settings.h * settings.w * 3 * sizeof(uint8_t);
+		status = cudaMalloc((void**)&device_image, imagesize);
+		if (status != cudaSuccess) { std::cerr << "error editing output image on device \n"; return; }
 	}
 
 private:

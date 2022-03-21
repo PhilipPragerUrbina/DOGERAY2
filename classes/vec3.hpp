@@ -88,6 +88,12 @@ public:
     __host__ __device__ Vec3 operator/(const Vec3& b) const {
         return Vec3(this->values[0] / b.values[0], this->values[1] / b.values[1], this->values[2] / b.values[2]);
     }
+    __host__ __device__ int extent() {
+        int max = 0;
+        if (values[1] > values[0]) { max = 1; }
+        if (values[2] > values[0] && values[2] > values[1]) { max = 2; }
+        return max;
+    }
 
     //print Vec3 to console for debugging
     void print() const{

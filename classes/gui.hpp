@@ -92,6 +92,10 @@ public:
         ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
         ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
 
+       
+        ImGui::DragFloat("Resolution Scale", &settings->scale,0.1,0.1,3);
+       
+
         Vec3 before = settings->cam.position;
         ImGui::DragFloat3("camera position", settings->cam.position.values);
         //temporary update solution
