@@ -57,7 +57,6 @@ public:
         SDL_Quit();
     }
 
-
     void update(config* settings) {
 
         //poll events
@@ -95,7 +94,7 @@ public:
        
         ImGui::DragFloat("Resolution Scale", &settings->scale,0.1,0.1,3);
         ImGui::SliderInt("# of bounces", &settings->maxdepth, 1, 10);
-
+        
        
 
         Vec3 before = settings->cam.position;
@@ -114,6 +113,20 @@ public:
          if (ImGui::Button("Reset samples")) {
              settings->samples = 0;
          }
+
+
+         if (settings->preview) {
+             if (ImGui::Button("Start Render")) {
+                 settings->preview = false;
+             }
+
+         }
+         else {
+             if (ImGui::Button("Stop Render")) {
+                 settings->preview = true;
+             }
+         }
+      
 
          // Buttons return true when clicked (most widgets return true when edited/activated)    
        //  ImGui::SameLine();

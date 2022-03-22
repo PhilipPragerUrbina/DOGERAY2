@@ -10,8 +10,8 @@ public:
 	int w;
 	int h;
 	float scale = 1;
-	//strength of bvh preview
-	float bvhstrength = 0.01;
+	//Is actually rendering
+	bool preview = true;
 	//camera
 	Camera cam;
 	//should window save image

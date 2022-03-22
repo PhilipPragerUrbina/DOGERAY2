@@ -74,8 +74,10 @@ public:
         //create surface
         SDL_Surface* tempsurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
 
+     
         //transfer pixels to surface
         SDL_RenderReadPixels(SDLrenderer, NULL, SDL_PIXELFORMAT_ARGB8888, tempsurface->pixels, tempsurface->pitch);
+       // stbi_write_jpg((filename + ".jpg").c_str(), width, height, 4, tempsurface->pixels, 80);
         SDL_SaveBMP(tempsurface, (filename + ".bmp").c_str());
 
         //delete surface

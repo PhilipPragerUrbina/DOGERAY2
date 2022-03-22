@@ -8,9 +8,12 @@
 //multithreading stuff
 #include<thread>
 //for checking if thread finished
-bool threaddone = false;
+bool threaddone = true;
 //render on spereate thread to not slow down program
 void render(config set, uint8_t* data, Window* win, Tracekernel* shader) {
+    if(threaddone) {
+        return;
+    }
     //get winbdow data to copy to
     data = win->getTex();
     //render frame
@@ -95,14 +98,14 @@ public:
         settings.h = height;
         settings.w = width;
     }
-
     void runmainloop() {
         //setup kernel
         shader = new Tracekernel(settings, finishedtree, materials);
         //start initial render
-        thread renderthread(render, settings, data, win, shader);
         prevw = settings.w;
         prevh = settings.h;
+        thread renderthread(render, settings, data, win, shader);
+      
         //main loop
         while (!gui->exit) {
             //update settings with gui input
@@ -124,13 +127,19 @@ public:
                     settings.saveimage = false;
                 }
 
+               
                 //get window size in case resized
                 win->getsize(&settings.w, &settings.h);
              
-
                 //apply user modifier
                 settings.w *= settings.scale;
                 settings.h *= settings.scale;
+
+                if (settings.preview) {
+                    settings.w *= 0.5;
+                    settings.h *=0.5;
+
+                }
 
                 //make even
                 settings.w = 8 * int(settings.w / 8);
@@ -151,8 +160,19 @@ public:
                     settings.samples = 0;
                 }
 
+
+              
+                config tempsettings = settings;
+                if (settings.preview) {
+                    tempsettings.samples = 0;
+                    tempsettings.maxdepth = 1;
+                }
+              
+
+
+
                 //start thread
-                renderthread = thread(render, settings, data, win, shader);
+                renderthread = thread(render, tempsettings, data, win, shader);
                 //increment samples
                 settings.samples++;
 

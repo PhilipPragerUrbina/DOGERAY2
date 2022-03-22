@@ -59,8 +59,8 @@ public:
         return out;
     }
     //reflect vector ober other vector(normal)
-    __host__ __device__ Vec3 reflected(Vec3 b) {
-        return *this - Vec3(2.0f * this->dot(b)) * b;
+    __host__ __device__ Vec3 reflected(Vec3 n) {
+        return *this  - Vec3(2.0f * this->dot(n)) * n  ;
     }
 
     //gets minimum and max values of two vectors
