@@ -16,7 +16,8 @@ public:
 	Camera cam;
 	//should window save image
 	bool saveimage = false;
-
+	//max bounces
+	int maxdepth = 3;
 
 	//# of samaples taken
 	int samples = 0;

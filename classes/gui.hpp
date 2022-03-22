@@ -94,6 +94,8 @@ public:
 
        
         ImGui::DragFloat("Resolution Scale", &settings->scale,0.1,0.1,3);
+        ImGui::SliderInt("# of bounces", &settings->maxdepth, 1, 10);
+
        
 
         Vec3 before = settings->cam.position;
