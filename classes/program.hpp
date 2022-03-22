@@ -91,7 +91,7 @@ public:
         settings.cam.calculate();
 
         //create window and gui objects
-        gui = new Gui("DOGERAY-gui", 200, 200);
+        gui = new Gui("DOGERAY-gui", 400, 400);
         win = new Window("DOGERAY2", width, height);
 
         //set configuration dimenasions

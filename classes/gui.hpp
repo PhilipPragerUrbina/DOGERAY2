@@ -106,9 +106,7 @@ public:
         }
         settings->cam.calculate();
       //   ImGui::ColorEdit3("clear color", (float*)&backgroundcolor); // Edit 3 floats representing a color
-         if (ImGui::Button("Save BMP")) {
-             settings->saveimage = true;
-         }
+     
        
          if (ImGui::Button("Reset samples")) {
              settings->samples = 0;
@@ -122,9 +120,13 @@ public:
 
          }
          else {
+             if (ImGui::Button("Save JPG")) {
+                 settings->saveimage = true;
+             }
              if (ImGui::Button("Stop Render")) {
                  settings->preview = true;
              }
+
          }
       
 

@@ -76,9 +76,10 @@ public:
 
      
         //transfer pixels to surface
-        SDL_RenderReadPixels(SDLrenderer, NULL, SDL_PIXELFORMAT_ARGB8888, tempsurface->pixels, tempsurface->pitch);
-       // stbi_write_jpg((filename + ".jpg").c_str(), width, height, 4, tempsurface->pixels, 80);
-        SDL_SaveBMP(tempsurface, (filename + ".bmp").c_str());
+        SDL_RenderReadPixels(SDLrenderer, NULL, SDL_PIXELFORMAT_ABGR8888 , tempsurface->pixels, tempsurface->pitch);
+        //save as JPG. Formally BMP but jpg is easier to share
+        stbi_write_jpg((filename + ".jpg").c_str(), width, height, 4, tempsurface->pixels, 80);
+        // SDL_SaveBMP(tempsurface, (filename + ".bmp").c_str());
 
         //delete surface
         SDL_FreeSurface(tempsurface);
