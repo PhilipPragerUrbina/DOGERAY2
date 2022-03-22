@@ -16,8 +16,8 @@ public:
 	int indexofchilda;
 	int indexofchildb;
 	//links
-	int hitnode[6];
-	int missnode[6];
+	int hitnode;
+	int missnode;
 	//axis aligned bounding box (inline since it is called a huge number of times)
 	inline __device__ bool testbox(Ray ray) {
 		//based on pixar AABB function
@@ -66,26 +66,6 @@ boundingbox arrayboundingbox(std::vector<Tri>& in) {
 	return out;
 }
 
-
-//boudnign box comparison fucntions
-bool boundingboxcompare(Tri a, Tri b, int xyz) {
-	return a.box.center[xyz] < b.box.center[xyz];
-}
-
-//one for each axis
-bool boundingboxcomparex(const Tri a, const Tri b) {
-	return boundingboxcompare(a, b, 0);
-}
-
-bool boundingboxcomparey(const Tri a, const Tri b) {
-	return boundingboxcompare(a, b, 1);
-}
-
-bool boundingboxcomparez(const Tri a, const Tri b) {
-	return boundingboxcompare(a, b, 2);
-}
-
-
 //bounding volume hearchy class class
 class Bvhtree {
 public:
@@ -97,14 +77,8 @@ public:
 		//split
 		std::cout << "building BVH \n";
 		recursivesplit(traingles);
-		//link all 6 directions for MTBVH. x+, x-, y+,y-,z+,z-
-		for (int dir = 0; dir < 6; dir++) {
-			currentdirection = dir;
-			std::cout << "linking BVH direction: " << currentdirection << "\n";
-			//link
-			createlinks(0, -1);
-		}
-		
+		std::cout << "linking BVH \n";
+		createlinks(0, -1);
 		std::cout << "BVH built! \n";
 	}
 
@@ -115,8 +89,6 @@ public:
 		return nodes.data();
 	}
 private:
-	//direction that is currently being linked
-	int currentdirection;
 	//store triangles to be sorted into tree
 	std::vector<Tri> traingles;
 	//array of nodes to be put on gpu later
@@ -142,36 +114,18 @@ private:
 
 		//push current node
 		nodes.push_back(parent);
-
-
-		//push current node
-		nodes.push_back(parent);
 		//get axis with most differnce
 		int axis = (parent.box.max - parent.box.min).extent();
-		
+		//split by middle
 		int mid = remaining.size() / 2;
-
-		
-		float pmid = parent.box.center[axis];
-	
-		auto miditerator =
-			std::partition(remaining.begin(),remaining.end(),
-				[axis, pmid](const Tri& i) {
-					int dim = axis;
-					Tri pi = i;
-					return pi.box.center[dim] < pmid;
-				});
-		if (miditerator == remaining.begin()) {
-			miditerator++;
-		}
-		else if (miditerator == remaining.end()) {
-			miditerator--;
-		}
-	
-		mid = miditerator - remaining.begin();
-	
-		//sort current triangles based on axis
-	
+		//sort and split by center of bounding box
+		std::nth_element(remaining.begin(),remaining.begin()+mid, remaining.end(),
+			[axis](const Tri& a, const Tri& b) {
+				int axisnotconst = axis;
+				Tri anotconst = a;
+				Tri bnotconst = b;
+				return anotconst.box.center[axisnotconst] < bnotconst.box.center[axisnotconst];
+			});
 		//split current triangles
 		std::vector<Tri> a;
 		std::vector<Tri> b;
@@ -195,37 +149,17 @@ private:
 	void createlinks(int current, int right) {
 		if (nodes[current].isleaf) {
 			//is at end. hit or miss means go to up right node in tree
-			nodes[current].hitnode[currentdirection] = right;
-			nodes[current].missnode[currentdirection] = right;
+			nodes[current].hitnode = right;
+			nodes[current].missnode = right;
 		}
 		else {
 			//get children ids
 			int child1 = nodes[current].indexofchilda;
 			int child2 = nodes[current].indexofchildb;
-
-			float pos1 = nodes[child1].box.center[currentdirection];
-			float pos2 = nodes[child2].box.center[currentdirection];
-		
-			// 0,1,2 = +x,+y,+z. 3,4,5 = -x,-y,-z;
-			if (currentdirection < 3) {
-				
-				if (pos1 < pos2) {
-					std::swap(child1, child2);
-				}
-			}
-			else {
-				
-				if (pos1>pos2) {
-
-					std::swap(child1, child2);
-				}
-			}
-
-
 			//hit means go to child
-			nodes[current].hitnode[currentdirection] = child1;
+			nodes[current].hitnode = child1;
 			//miss means go to up right node
-			nodes[current].missnode[currentdirection] = right;
+			nodes[current].missnode = right;
 			//reucrisvley create links
 			createlinks(child1, child2);
 			createlinks(child2, right);
