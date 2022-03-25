@@ -12,6 +12,11 @@ public:
 	float scale = 1;
 	//Is actually rendering
 	bool preview = true;
+	//bvh view
+	bool bvh = false;
+	//background
+	Vec3 backgroundcolor{0.1,0.1,0.1};
+	float backgroundintensity = 1.5;
 	//camera
 	Camera cam;
 	//should window save image

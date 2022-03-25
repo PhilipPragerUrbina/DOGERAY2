@@ -80,62 +80,55 @@ public:
 
         //show window contents
         //if this class is re-used. Just replace this whith your gui.
-        static float f = 0.0f;
-        ImGui::Begin("Controls");                          // Create a window called "Hello, world!" and append into it.
-        ImGui::Text("Control Dogeray here");               // Display some text (you can use a format strings too)
-      //  ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-      //  ImGui::Checkbox("Another Window", &show_another_window);
-     
-      //  ImGui::SliderFloat("preview strength", &settings->bvhstrength, 0.0001f,0.5f);            // Edit 1 float using a slider from 0.0f to 1.0f
-        ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
-        ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
-        ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
 
-       
-        ImGui::DragFloat("Resolution Scale", &settings->scale,0.1,0.1,3);
-        ImGui::SliderInt("# of bounces", &settings->maxdepth, 1, 10);
-        
-       
+        //start gui box
+        ImGui::Begin("Controls");                        
+        ImGui::Text("Dogeray controls:");
+        bool changed = false;
+        //Render button
+        if (settings->preview) {
+            if (ImGui::Button("Start Render")) {
+                settings->preview = false;
+            }
 
-        Vec3 before = settings->cam.position;
-        ImGui::DragFloat3("camera position", settings->cam.position.values);
-        //temporary update solution
-        Vec3 after = settings->cam.position;
-        if (before[0] != after[0] || before[1] != after[1] || before[2] != after[2]) {
-            settings->samples = 0;
         }
-        settings->cam.calculate();
-      //   ImGui::ColorEdit3("clear color", (float*)&backgroundcolor); // Edit 3 floats representing a color
+        else {
+            //only show image save option when rendering
+            if (ImGui::Button("Save JPG")) {
+                settings->saveimage = true;
+            }
+            if (ImGui::Button("Stop Render")) {
+                settings->preview = true;
+            }
+        }
+        //quality settings
+        ImGui::DragFloat("Resolution Scale", &settings->scale, 0.1, 0.1, 3);
+        ImGui::SliderInt("# of bounces", &settings->maxdepth, 1, 10);
+        ImGui::Text("samples = %d", settings->samples);
+        changed |= ImGui::Button("Reset Samples");
+        //camera position
+        changed |= ImGui::DragFloat3("camera position", settings->cam.position.values);
+        //more camera options
+        if (ImGui::CollapsingHeader("Lens")) {
+            changed |= ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
+            changed |= ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
+            changed |= ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
+        }
      
-       
-         if (ImGui::Button("Reset samples")) {
-             settings->samples = 0;
-         }
+        if (ImGui::CollapsingHeader("Background")) {
+            changed |= ImGui::ColorEdit3("Background color", settings->backgroundcolor.values);
+            changed |= ImGui::DragFloat("Background intestity", &settings->backgroundintensity, 0.1);
+        }
 
-
-         if (settings->preview) {
-             if (ImGui::Button("Start Render")) {
-                 settings->preview = false;
-             }
-
-         }
-         else {
-             if (ImGui::Button("Save JPG")) {
-                 settings->saveimage = true;
-             }
-             if (ImGui::Button("Stop Render")) {
-                 settings->preview = true;
-             }
-
-         }
-      
-
-         // Buttons return true when clicked (most widgets return true when edited/activated)    
-       //  ImGui::SameLine();
-         ImGui::Text("samples = %d", settings->samples);
+         ImGui::Checkbox("Show BVH", &settings->bvh);
          ImGui::Text("GUI average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
          ImGui::End();
-        
+
+         if (changed) {
+             settings->samples = 0;
+         }
+         //update camera
+         settings->cam.calculate();
 
         
         // render

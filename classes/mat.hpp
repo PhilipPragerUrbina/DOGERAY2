@@ -37,117 +37,87 @@ private:
 
 
 
-
-
 //I orignally wanted to use runtime polymorphism or function pointers. This proved to be very diffucult to copy from host to device without significant complexity.
 //matirial  class
 //decided to combine prev shaders into unversal PBR material to work better with GLTF and to avoid polymorphism problems
 class Mat {
 public:
     //mat properties. Uses PBR inputs. 
-    Vec3 colorfactor = Vec3(0.5,0.5,0.5);
+    Vec3 colorfactor{0.5,0.5,0.5};
     Texture colortexture;
 
     float metalfactor = 0.5;
-
     float roughfactor = 0.5;
     Texture roughtexture;
 
-    Texture normaltexture;
+    Vec3 emmisivefactor{0,0,0};
+    Texture emmisiontexture;
+    bool doesemit = false;
+  //  Texture normaltexture;
 
     //id for material creation in host(prevent duplicates)
     int id = 0;
-    Mat(int ident, Vec3 col, float metal, float rough) {
+    Mat(int ident, Vec3 col, float metal, float rough, Vec3 emit) {
         id = ident;
         colorfactor = col;
         metalfactor = metal;
         roughfactor = rough;
+        emmisivefactor = emit;
+        if (emmisivefactor[0] != 0 || emmisivefactor[1] != 0 || emmisivefactor[2] != 0) {
+            doesemit = true;
+        }
     }
 
 
-    __device__  void interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, Noise noise) {
-     
+    __device__  bool interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, Noise noise) {
+     //update normals
       //  if (normaltexture.exists) {
           //  normal = normal * (normaltexture.get(texcoords) * 2.0 - 1.0).normalized();
       //  }
-
-        float rough = roughfactor;
-        if (roughtexture.exists) {
-            rough = rough * roughtexture.get(texcoords)[1];
-        }
-
-        //calculate direction
-        Vec3 reflected = ray->dir.normalized().reflected(normal);
-        ray->dir = reflected + Vec3(rough) * noise.unitsphere();
-
         Vec3 color = colorfactor;
         if (colortexture.exists) {
             color = color * colortexture.get(texcoords);
         }
+
+
+        if (doesemit) {
+            Vec3 emmision = emmisivefactor;
+            if (emmisiontexture.exists) {
+                emmision = emmision * emmisiontexture.get(texcoords);
+            }
+            ray->attenuation = ray->attenuation * emmision;
+            return true;
+        }
+        //get textures
+        float rough = roughfactor;
+       // float metal = metalfactor;
+        if (roughtexture.exists) {
+            rough = rough * roughtexture.get(texcoords)[1];
+           // metal = metal * roughtexture.get(texcoords)[2];
+
+        }
+     
+      
        
+            //calculate direction
+            Vec3 reflected = ray->dir.normalized().reflected(normal);
+            ray->dir = reflected + Vec3(rough) * noise.unitsphere();
+       
+
+             
+           //     Vec3 target = hitpoint + normal + noise.unitsphere();
+            //    ray->dir = (target - hitpoint).normalized();
+
+           
+    
+      
+      
+
         //update ray
         ray->origin = hitpoint;
         ray->attenuation = ray->attenuation * color;
-
+        
+        return false;
     };
 
-
-
 };
-
-
-/*
-//diffuse amt
-class Diffuse {
-    __device__ virtual void interact(Ray* ray, Vec3 hitpoint, Vec3 normal,curandState* seed) {
-        //calc direction
-        Vec3 target = hitpoint + normal + randomvec3insphere(seed);
-        ray->dir = (target - hitpoint).normalized();
-        //update ray
-        ray->origin = hitpoint;
-        ray->attenuation = ray->attenuation * color;
-    }
-};
-
-//reflective mat
-//atribute 1 is rougnesss
-class Metal : public Mat {
-    __device__ virtual void interact(Ray* ray, Vec3 hitpoint, Vec3 normal, curandState* seed) {
-        //calculate direction
-        Vec3 reflected = ray->dir.normalized().reflected(normal);
-        ray->dir = reflected + Vec3(attribute1) * randomvec3insphere(seed);
-        //update ray
-        ray->origin = hitpoint;
-        ray->attenuation = ray->attenuation * color;
-    }
-       else if (b[g].mat == 5) {
-                //glossy mat
-                float rand = randy(state);
-
-                if (rand > 0.8) {
-                    float3 reflected = reflect(getNormalizedVec(raydir), N);
-                    cur_attenuation = cur_attenuation * ocolor;
-                    rayo = hitpoint;
-
-                    raydir = reflected + make3(rough) * random_in_unit_sphere(state);
-
-                }
-                else {
-                    float3 target = hitpoint + N;
-
-                    target = target + random_in_unit_sphere(state);
-
-
-                    cur_attenuation = cur_attenuation * ocolor;
-
-                    rayo = hitpoint;
-                    raydir = getNormalizedVec(target - hitpoint);
-
-                }
-
-
-
-
-            }
-};*/
-

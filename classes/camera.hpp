@@ -52,6 +52,7 @@ public:
         aspectratio = float(width) / float(height);
     }
 
+
 private:
 
     float radfov;

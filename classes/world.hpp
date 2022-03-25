@@ -22,6 +22,10 @@ public:
 
 	//ray color fucntion
 	__device__ Vec3 color(Ray ray, Noise noise) {
+		if (settings.bvh) {
+			intersect(ray);
+			return Vec3(traversalcount/255.0f);
+		}
 		//ray color 
 		ray.attenuation = Vec3(1.0f);
 		//for each ray bounce
@@ -32,13 +36,16 @@ public:
 				Vec3 normal = getnormal();
 				Vec3 texcoords = gettexcoords();
 				//use matririal
-				materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, noise);
+				if (materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, noise)) {
+					return ray.attenuation;
+				}
 			}
 			else {
 				//ray misses
 				//bg color
 				float t = 0.5 * (-ray.dir.normalized()[1] + 1.0);
-				return ray.attenuation * (Vec3(1.0 - t) * Vec3(1.5) + Vec3(t) * Vec3(0.1, 0.1, 0.1));
+				Vec3 color = settings.backgroundcolor / 255.0f;
+				return ray.attenuation * Vec3(1.0 - t) * Vec3(settings.backgroundintensity) + Vec3(t) * settings.backgroundcolor;
 			}
 		}
 		return   ray.attenuation;
@@ -50,7 +57,7 @@ private:
 	Vec3 uv;
 	Tri triangle;
 	float distance;
-	//int traversalcount = 0;
+	int traversalcount = 0;
 	//intersect wolrd
 	__device__ bool intersect(Ray ray) {
 		//minimum distance so far
@@ -61,7 +68,7 @@ private:
 		int box_index = 0;
 		while (box_index != -1) {
 			//keep track of # of travsersals for BVH heatmap
-			//traversalcount++;
+			traversalcount++;
 			//get current node
 			bvhnode currentnode = tree[box_index];
 			//test node

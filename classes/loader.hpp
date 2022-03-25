@@ -138,8 +138,9 @@ private:
                 auto gltfmat = model.materials[mesh.primitives[i].material];
                 //set color
                 Vec3 color(gltfmat.pbrMetallicRoughness.baseColorFactor[0], gltfmat.pbrMetallicRoughness.baseColorFactor[1], gltfmat.pbrMetallicRoughness.baseColorFactor[2]);
+                Vec3 emmision(gltfmat.emissiveFactor[0], gltfmat.emissiveFactor[1], gltfmat.emissiveFactor[2]);
                 //create and add mat
-                Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor);
+                Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor,emmision);
                
            
 
@@ -153,12 +154,19 @@ private:
                     auto roughimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index].source];
                     newmat.roughtexture.create(roughimage.image.data(), roughimage.width, roughimage.height, roughimage.component, roughimage.bits);
                 }
-                //load normal map
-                if (gltfmat.normalTexture.index != -1) {
-                    auto normalimage = model.images[model.textures[gltfmat.normalTexture.index].source];
-                    newmat.normaltexture.create(normalimage.image.data(), normalimage.width, normalimage.height, normalimage.component, normalimage.bits);
+                //load emmision map
+                if (gltfmat.emissiveTexture.index != -1) {
+                    auto emimage = model.images[model.textures[gltfmat.emissiveTexture.index].source];
+                    newmat.emmisiontexture.create(emimage.image.data(), emimage.width, emimage.height, emimage.component, emimage.bits);
                 }
-                loadedmaterials.push_back(newmat);
+
+
+                //load normal map
+             //   if (gltfmat.normalTexture.index != -1) {
+               //     auto normalimage = model.images[model.textures[gltfmat.normalTexture.index].source];
+               //     newmat.normaltexture.create(normalimage.image.data(), normalimage.width, normalimage.height, normalimage.component, normalimage.bits);
+               // }
+               loadedmaterials.push_back(newmat);
     
 
                 //set id
