@@ -48,7 +48,11 @@ public:
 				return ray.attenuation * Vec3(1.0 - t) * Vec3(settings.backgroundintensity) + Vec3(t) * settings.backgroundcolor;
 			}
 		}
-		return   ray.attenuation;
+		if (settings.maxdepth == 1) {
+			return   ray.attenuation;
+		}
+		return Vec3(0);
+	
 	}
 
 private:
@@ -65,12 +69,12 @@ private:
 		//is soemthing hit
 		bool ishit = false;
 		//stackless bvh traversal
-		int box_index = 0;
-		while (box_index != -1) {
+		int index = 0;
+		while (index != -1) {
 			//keep track of # of travsersals for BVH heatmap
 			traversalcount++;
 			//get current node
-			bvhnode currentnode = tree[box_index];
+			bvhnode currentnode = tree[index];
 			//test node
 			if (currentnode.testbox(ray)) {
 				//if is a triangle test triangle
@@ -91,20 +95,20 @@ private:
 					}
 
 				}
-				box_index = currentnode.hitnode; //go down tree
+				index = currentnode.hitnode; //go down tree
 			}
 			else {
 				//missed go up the tree
-				box_index = currentnode.missnode;
+				index = currentnode.missnode;
 			}
 		}
 		return ishit;
 	}
 	//get tringle normal from hit
 	__device__ Vec3 getnormal() {
-		return ((Vec3(1 - uv[0] - uv[1]) * triangle.verts[0].norm) + (Vec3(uv[0]) * triangle.verts[1].norm) + (Vec3(uv[1]) * triangle.verts[2].norm));
+		return Vec3(1.0f - uv[0] - uv[1]) * triangle.verts[0].norm + Vec3(uv[0]) * triangle.verts[1].norm + Vec3(uv[1]) * triangle.verts[2].norm;
 	}
 	__device__ Vec3 gettexcoords() {
-		return ((Vec3(1 - uv[0] - uv[1]) * triangle.verts[0].tex) + (Vec3(uv[0]) * triangle.verts[1].tex) + (Vec3(uv[1]) * triangle.verts[2].tex));
+		return ((Vec3(1.0f - uv[0] - uv[1]) * triangle.verts[0].tex) + (Vec3(uv[0]) * triangle.verts[1].tex) + (Vec3(uv[1]) * triangle.verts[2].tex));
 	}
 };

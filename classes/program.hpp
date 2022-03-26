@@ -91,7 +91,7 @@ public:
         settings.cam.calculate();
 
         //create window and gui objects
-        gui = new Gui("DOGERAY-gui", 400, 400);
+        gui = new Gui("DOGERAY-gui", 500, 400);
         win = new Window("DOGERAY2", width, height);
 
         //set configuration dimenasions
@@ -164,8 +164,9 @@ public:
               
                 config tempsettings = settings;
                 if (settings.preview) {
-                    tempsettings.samples = 0;
                     tempsettings.maxdepth = 1;
+                    //settings the samples to zero can provide a better preview editing experince. But there is extreme fuzzyness.
+                     //tempsettings.samples = 0;
                 }
               
 

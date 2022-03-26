@@ -1,7 +1,9 @@
 ﻿//class for loaading 3d files
 #include "program.hpp"
+
 int main(int argc, char* args[])
 {
+
 
     Program raytracer;
     raytracer.displaytitle();
