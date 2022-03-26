@@ -28,7 +28,7 @@ public:
         SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 
         //create window
-        GUIwindow = SDL_CreateWindow(name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
+        GUIwindow = SDL_CreateWindow(name.c_str(), 100, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
 
         // create renderer
         GUIrenderer = SDL_CreateRenderer(GUIwindow, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
