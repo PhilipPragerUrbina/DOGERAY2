@@ -100,22 +100,22 @@ public:
       
        
             //calculate direction
-            Vec3 reflected = ray->dir.normalized().reflected(normal);
-            ray->dir = reflected + Vec3(rough) * noise.unitsphere();
+         Vec3 reflect = ray->dir.normalized().reflected(normal);
+        ray->dir = reflect + Vec3(rough) * noise.unitsphere();
        
+    
 
              
-           //     Vec3 target = hitpoint + normal + noise.unitsphere();
-            //    ray->dir = (target - hitpoint).normalized();
+            // Vec3 target = hitpoint + normal + noise.unitsphere();
+           //  ray->dir = (target - hitpoint).normalized();
 
-           
-    
+       
       
       
 
         //update ray
         ray->origin = hitpoint;
-        ray->attenuation = ray->attenuation * color;
+       ray->attenuation = ray->attenuation * color;
         
         return false;
     };

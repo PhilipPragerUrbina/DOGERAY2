@@ -257,6 +257,20 @@ private:
 
                 //set norm 
                 newtri.verts[e].norm = Vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
+                //apply matrix transform to nromal
+                linalg::aliases::float4 old2;
+                old2.x = newtri.verts[e].norm[0];
+                old2.y = newtri.verts[e].norm[1];
+                old2.z = newtri.verts[e].norm[2];
+                old2.w = 1;
+                //apply matrix
+                old2 = mul(globalmatrix, old2);
+                //update vert
+                newtri.verts[e].norm[0] = old2.x;
+                newtri.verts[e].norm[1] = old2.y;
+                newtri.verts[e].norm[2] = old2.z;
+             
+
                 //set tex 
       
                 newtri.verts[e].tex = Vec3(tex[index * 2 + 0], tex[index * 2 + 1], 0);
