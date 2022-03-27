@@ -79,14 +79,20 @@ public:
             color = color * colortexture.get(texcoords);
         }
 
-
+        //has emmsive propertyies
         if (doesemit) {
+            //get emmisive values
             Vec3 emmision = emmisivefactor;
             if (emmisiontexture.exists) {
                 emmision = emmision * emmisiontexture.get(texcoords);
             }
-            ray->attenuation = ray->attenuation * emmision;
-            return true;
+            //if this specific part of triangle is emmsive
+            if (emmision[0] > 0.1 || emmision[1] > 0.1 || emmision[2] > 0.1) {
+                //retrun light color
+                ray->attenuation = ray->attenuation * emmision;
+                return true;
+            }
+           
         }
         //get textures
         float rough = roughfactor;
