@@ -3,6 +3,9 @@
 #include <SDL.h>
 #include <iostream>
 #include <string>
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
+#include <experimental/filesystem>
+
 //class for creating and displaying windows
 class Window {
 public:
@@ -70,7 +73,12 @@ public:
     }
     //save bmp screenshot
     void saveimage(string filename) {
-
+       
+        //allow saving of multiple images
+        while (std::experimental::filesystem::exists(filename + ".jpg")) {
+            filename = filename +  "_";
+        }
+        filename = filename + ".jpg";
         //create surface
         SDL_Surface* tempsurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
 
@@ -78,7 +86,7 @@ public:
         //transfer pixels to surface
         SDL_RenderReadPixels(SDLrenderer, NULL, SDL_PIXELFORMAT_ABGR8888 , tempsurface->pixels, tempsurface->pitch);
         //save as JPG. Formally BMP but jpg is easier to share
-        stbi_write_jpg((filename + ".jpg").c_str(), width, height, 4, tempsurface->pixels, 80);
+        stbi_write_jpg((filename).c_str(), width, height, 4, tempsurface->pixels, 80);
         // SDL_SaveBMP(tempsurface, (filename + ".bmp").c_str());
 
         //delete surface
