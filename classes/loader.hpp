@@ -257,19 +257,26 @@ private:
 
                 //set norm 
                 newtri.verts[e].norm = Vec3(normals[index * 3 + 0], normals[index * 3 + 1], normals[index * 3 + 2]);
-                //apply matrix transform to nromal
+                //get rotation from transformation matrix
+                linalg::aliases::float4x4 rotationmatrix = linalg::identity;
+                for (int x = 0; x < 3; x++) {
+                    for (int y = 0; y < 3; y++) {
+                        rotationmatrix[x][y] = globalmatrix[x][y];
+                    }
+                }
+                //apply matrix rotation to nromal
                 linalg::aliases::float4 old2;
                 old2.x = newtri.verts[e].norm[0];
                 old2.y = newtri.verts[e].norm[1];
                 old2.z = newtri.verts[e].norm[2];
                 old2.w = 1;
                 //apply matrix
-                old2 = mul(globalmatrix, old2);
+                old2 = mul(rotationmatrix, old2);
                 //update vert
                 newtri.verts[e].norm[0] = old2.x;
                 newtri.verts[e].norm[1] = old2.y;
                 newtri.verts[e].norm[2] = old2.z;
-             
+                newtri.verts[e].norm = newtri.verts[e].norm.normalized();
 
                 //set tex 
       
@@ -290,7 +297,7 @@ private:
 
     //traverse gltf nodes
     void gltfnode(tinygltf::Model& model,
-        tinygltf::Node& node, linalg::aliases::float4x4 globalmatrix, bool first) {
+        tinygltf::Node& node, linalg::aliases::float4x4 globalmatrix) {
       
        //check if node has matrix
         if (node.matrix.size() > 0) {
@@ -302,13 +309,9 @@ private:
                 }
             }
             //update global transform
-            if (first) {
-                first = false;
-                globalmatrix = localmatrix;
-            }
-            else {
+          
                 globalmatrix = mul(globalmatrix,localmatrix);
-            }
+            
          
 
         }
@@ -321,23 +324,25 @@ private:
                 translationmatrix[3][1] = node.translation[1];
                 translationmatrix[3][2] = node.translation[2];
             }
-            using namespace linalg::ostream_overloads;
             //create rotation matrix
-            linalg::aliases::float4 rotation{ 0,0,0,1 };
+            linalg::aliases::float4x4 rotationmatrix = linalg::identity;
+           
             if (node.rotation.size() > 0) {
+                linalg::aliases::float4 rotation{ 0,0,0,1 };
                 rotation.x = node.rotation[0];
                 rotation.y = node.rotation[1];
                 rotation.z = node.rotation[2];
                 rotation.w = node.rotation[3];
-            }
-            linalg::aliases::float4x4 rotationmatrix = linalg::identity;
-            linalg::aliases::float3x3 smallrotationmatrix= qmat(rotation);
-            //convert to mat4
-            for (int x = 0; x < 3; x++) {
-                for (int y = 0; y < 3; y++) {
-                    rotationmatrix[x][y] = smallrotationmatrix[x][y];
+                linalg::aliases::float3x3 smallrotationmatrix = qmat(rotation);
+                //convert to mat4
+                for (int x = 0; x < 3; x++) {
+                    for (int y = 0; y < 3; y++) {
+                        rotationmatrix[x][y] = smallrotationmatrix[x][y];
+                    }
                 }
             }
+       
+         
             //create scale amtrix
             linalg::aliases::float4x4 scalematrix = linalg::identity;
             if (node.scale.size() > 0) {
@@ -350,13 +355,10 @@ private:
           
          
             //apply transformation
-            if (first) {
-                first = false;
-                globalmatrix = localmatrix;
-            }
-            else {
+     
+
                 globalmatrix = mul(globalmatrix,localmatrix);
-            }
+            
 
         }
 
@@ -379,7 +381,7 @@ private:
 
         //then check children
         for (size_t i = 0; i < node.children.size(); i++) {
-            gltfnode(model, model.nodes[node.children[i]], globalmatrix, first);
+            gltfnode(model, model.nodes[node.children[i]], globalmatrix);
         }
     }
 
@@ -388,7 +390,7 @@ private:
         const tinygltf::Scene& scene = model.scenes[model.defaultScene];
         for (size_t i = 0; i < scene.nodes.size(); ++i) {
            linalg::aliases::float4x4 globalmatrix = linalg::identity;
-            gltfnode(model, model.nodes[scene.nodes[i]], globalmatrix, true);
+            gltfnode(model, model.nodes[scene.nodes[i]], globalmatrix);
         }
     }
 
