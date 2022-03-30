@@ -69,7 +69,13 @@ public:
                 exit = true;
             if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
                 exit = true;
-            //other events. 
+
+            //TODO add hotkeys here
+        //    if (event.type == SDL_KEYDOWN) {
+          //      switch (event.key.keysym.sym) {
+
+         //       }
+         //   }
             //if this class is re-used. Just replace this whith your events.  
         }
 
@@ -113,6 +119,7 @@ public:
             changed |= ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
             changed |= ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
             changed |= ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
+            changed |= ImGui::DragFloat3("look at", settings->cam.lookposition.values);
         }
      
         if (ImGui::CollapsingHeader("Background")) {

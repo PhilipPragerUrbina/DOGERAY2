@@ -14,6 +14,7 @@ public:
     float aperture = 0;
     float focusoffset = 0;
 
+
     //no constructor to allow this to be in struct
     //calculate camera paramters
     void calculate() {
