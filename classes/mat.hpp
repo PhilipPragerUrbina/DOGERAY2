@@ -1,5 +1,5 @@
 #pragma once
-#include"texture.hpp"
+#include"config.hpp"
 #include <curand_kernel.h>
 //class for handling randomness on device
 class Noise {
@@ -67,6 +67,13 @@ public:
             doesemit = true;
         }
     }
+    void destroy() {
+        //TODO add rest of textures here
+          colortexture.destroy();
+        //materialstoclean[i].normaltexture.destroy();
+       roughtexture.destroy();
+       emmisiontexture.destroy();
+    }
 
 
     __device__  bool interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, Noise noise) {
@@ -96,24 +103,28 @@ public:
         }
         //get textures
         float rough = roughfactor;
-       // float metal = metalfactor;
+        float metal = metalfactor;
         if (roughtexture.exists) {
             rough = rough * roughtexture.get(texcoords)[1];
-           // metal = metal * roughtexture.get(texcoords)[2];
+           metal = metal * roughtexture.get(texcoords)[2];
 
         }
      
       
-       
+        if (metal > 0.5) {
             //calculate direction
-         Vec3 reflect = ray->dir.normalized().reflected(normal);
-        ray->dir = reflect + Vec3(rough) * noise.unitsphere();
-       
-    
+            Vec3 reflect = ray->dir.normalized().reflected(normal);
+            ray->dir = reflect + Vec3(rough) * noise.unitsphere();
+
+
+        }else{
+            Vec3 target = hitpoint + normal + noise.unitsphere();
+           ray->dir = (target - hitpoint).normalized();
+        }
+            
 
              
-            // Vec3 target = hitpoint + normal + noise.unitsphere();
-           //  ray->dir = (target - hitpoint).normalized();
+           
 
        
       

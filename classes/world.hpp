@@ -43,9 +43,20 @@ public:
 			else {
 				//ray misses
 				//bg color
-				float t = 0.5 * (-ray.dir.normalized()[1] + 1.0);
-				Vec3 color = settings.backgroundcolor / 255.0f;
-				return ray.attenuation * Vec3(1.0 - t) * Vec3(settings.backgroundintensity) + Vec3(t) * settings.backgroundcolor;
+				if (settings.backgroundtexture.exists) {
+					Vec3 normalizeddir = ray.dir.normalized();
+					float m = 2.0f * sqrt(pow(normalizeddir[0], 2.0f) + pow(normalizeddir[1], 2.0f) + pow(normalizeddir[2] , 2.0f));
+					Vec3 t = normalizeddir / m + 0.5;
+					t[1] = -t[1] + 1;
+					Vec3 bgcolor = settings.backgroundtexture.get(t);
+					return  ray.attenuation * bgcolor * settings.backgroundintensity;
+				}
+				else {
+					float t = 0.5 * (-ray.dir.normalized()[1] + 1.0);
+					Vec3 color = settings.backgroundcolor / 255.0f;
+					return ray.attenuation * Vec3(1.0 - t) * Vec3(settings.backgroundintensity) + Vec3(t) * settings.backgroundcolor;
+				}
+			
 			}
 		}
 		if (settings.maxdepth == 1) {

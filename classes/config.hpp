@@ -1,5 +1,6 @@
 #pragma once
 #include "camera.hpp"
+#include "texture.hpp"
 //information taht shpuld be passed to GPU for ray tracing
 struct config {
 public:
@@ -17,6 +18,7 @@ public:
 	//background
 	Vec3 backgroundcolor{0.1,0.1,0.1};
 	float backgroundintensity = 1.5;
+	Texture backgroundtexture;
 	//camera
 	Camera cam;
 	//should window save image

@@ -54,6 +54,7 @@ public:
         delete file;
         delete[] data;
         delete[] finishedtree;
+        settings.backgroundtexture.destroy();
     }
 
     //diplsay console intro title
@@ -82,6 +83,32 @@ public:
         //load materials
         materials = file->loadedmaterials.data();
         settings.matsize = file->loadedmaterials.size();
+        //load background
+        loadbackground();
+    }
+
+    void loadbackground() {
+        string filename = "";
+        //find file named background
+        for (const auto& entry : std::experimental::filesystem::directory_iterator(std::experimental::filesystem::current_path())) {
+            if (entry.path().stem().string() == "background") {
+                filename = entry.path().filename().string();
+                break;
+            }
+        } 
+        //chack if background file exists
+        if (filename != "") {
+            cout << "background found: " << filename << "\n";
+            //load image
+            int x, y, n;
+            unsigned char *data = stbi_load(filename.c_str(), &x, &y, &n, 4);
+            //create texture
+            settings.backgroundtexture.create(data, x, y, 4, 8);
+            //clean up
+             stbi_image_free(data);
+             cout << "background loaded \n";
+
+        }
     }
 
     //intitialize ui

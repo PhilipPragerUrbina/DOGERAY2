@@ -101,11 +101,7 @@ public:
 	}
 	void cleantextures() {
 		for (int i = 0; i < nummaterials; i++) {
-			//TODO add rest of textures here
-			materialstoclean[i].colortexture.destroy();
-			//materialstoclean[i].normaltexture.destroy();
-			materialstoclean[i].roughtexture.destroy();
-			materialstoclean[i].emmisiontexture.destroy();
+			materialstoclean[i].destroy();
 		}
 	}
 

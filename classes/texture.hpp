@@ -1,5 +1,6 @@
 #pragma once
-#include "config.hpp"
+#include"vec3.hpp"
+
 //class for keeping track of textures
 class Texture {
 public:
