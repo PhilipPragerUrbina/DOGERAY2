@@ -110,31 +110,51 @@ public:
 
         }
      
-      
+        //calulate direction
+        //metal (No mixing since most of the time metal is metal)
         if (metal > 0.5) {
-            //calculate direction
-            Vec3 reflect = ray->dir.normalized().reflected(normal);
-            ray->dir = reflect + Vec3(rough) * noise.unitsphere();
+            ray->dir = ray->dir.normalized().reflected(normal) + Vec3(rough) * noise.unitsphere();
+            ray->attenuation = ray->attenuation * color;
 
-
-        }else{
-            Vec3 target = hitpoint + normal + noise.unitsphere();
-           ray->dir = (target - hitpoint).normalized();
         }
-            
-
-             
-           
-
-       
-      
-      
+        //diffuse
+        else  if (rough > 0.7) {
+            Vec3 target = hitpoint + normal + noise.unitsphere();
+            ray->dir = (target - hitpoint).normalized();
+            ray->attenuation = ray->attenuation * color;
+        }
+        //dialectric(plastic not glass)
+        else {
+            //TODO debug and adjust ior for plastic mixing
+            const float ior = 2.5;
+            float cosine = min((-(ray->dir.normalized())).dot(normal), 1.0f);
+             //fresnel
+            if (reflectance(cosine, 1.0f / ior) > noise.rand()) {
+                //specular(metal without color)
+                ray->dir = ray->dir.normalized().reflected(normal) + Vec3(rough) * noise.unitsphere();
+            }
+            else {
+                //diffuse
+                Vec3 target = hitpoint + normal + noise.unitsphere();
+                ray->dir = (target - hitpoint).normalized();
+                ray->attenuation = ray->attenuation * color;
+            }
+        }
+         
 
         //update ray
         ray->origin = hitpoint;
-       ray->attenuation = ray->attenuation * color;
+   
         
         return false;
     };
+    private:
+        //schlick approximation frm ray tracing ij one weekend
+        __device__ float reflectance(float cosine, float ref_idx) {
+            float r0 = (1 - ref_idx) / (1 + ref_idx);
+            r0 = r0 * r0;
+            return r0 + (1 - r0) * pow((1 - cosine), 5);
+        }
+
 
 };
