@@ -9,11 +9,13 @@ public:
     //camera settings
     Vec3 position{ 1, 1, 100 };
     Vec3 lookposition{ 0, 0, 0 };
+    Vec3 rotation{ 0,0,0 };
+    bool lookat = true;
     float degreefov = 45;
     Vec3 up{ 0, 1, 0 };
     float aperture = 0;
     float focusoffset = 0;
-
+    
 
     //no constructor to allow this to be in struct
     //calculate camera paramters
@@ -29,6 +31,10 @@ public:
         float viewportwidth = aspectratio * viewportheight;
 
         Vec3 w = (position - lookposition).normalized();
+        if (!lookat) {
+            w = rotation.normalized();
+        }
+
         Vec3 u = up.cross(w).normalized();
         uu = u;
         Vec3 v = w.cross(u);

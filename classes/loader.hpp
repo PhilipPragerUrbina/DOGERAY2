@@ -364,14 +364,34 @@ private:
 
 
         if (node.camera > -1 && !camerafound) {
+            //empty postion
             linalg::aliases::float4 old{ 0,0,0,1 };
             //apply matrix
             old = mul(globalmatrix, old);
-            //update vert
-            Vec3 campos(old.x, old.y, old.z);
-            settings->cam.position = campos; 
+            //update camera postion
+            settings->cam.position = Vec3(old.x, old.y, old.z);
+            //fov(convert to degrees)
+            settings->cam.degreefov = model.cameras[node.camera].perspective.yfov * (180.0 / 3.141592653589793238463);
+            //update camera rotation
+            //get rotation from transformation matrix
+            linalg::aliases::float4x4 rotationmatrix = linalg::identity;
+            for (int x = 0; x < 3; x++) {
+                for (int y = 0; y < 3; y++) {
+                    rotationmatrix[x][y] = globalmatrix[x][y];
+                }
+            }
+            //apply matrix rotation to direction
+            linalg::aliases::float4 old2{ 0,0,1,1 };
+            old2 = mul(rotationmatrix, old2); 
+            //add a little bit to avoid zero errors
+            settings->cam.rotation = Vec3(old2.x , old2.y, old2.z + 0.001f);
+           
+          
+          settings->cam.lookat = false;
+
+
             camerafound = true;
-            cout << "camera found at: " << campos << "\n";
+            cout << "camera found at: " << settings->cam.position  <<  " with rotation: " << settings->cam.rotation  << " with fov: " << settings->cam.degreefov<< "\n";
         }
 
         //if mesh load vertices

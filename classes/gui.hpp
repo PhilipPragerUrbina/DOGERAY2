@@ -119,7 +119,15 @@ public:
             changed |= ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
             changed |= ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
             changed |= ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
-            changed |= ImGui::DragFloat3("look at", settings->cam.lookposition.values);
+            if (settings->cam.lookat) {
+                changed |= ImGui::DragFloat3("look at", settings->cam.lookposition.values);
+            }
+            else {
+                changed |= ImGui::DragFloat3("rotation", settings->cam.rotation.values, 0.02);
+            }
+            changed |= ImGui::Checkbox("Look At", &settings->cam.lookat);
+         
+        
         }
      
         if (ImGui::CollapsingHeader("Background")) {
