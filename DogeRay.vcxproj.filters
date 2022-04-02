@@ -71,6 +71,7 @@
     <ClInclude Include="classes\mat.hpp" />
     <ClInclude Include="classes\texture.hpp" />
     <ClInclude Include="libraries\linalg.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />
@@ -97,5 +98,11 @@
     <ClCompile Include="libraries\imgui\imgui_widgets.cpp">
       <Filter>Libraries\imgui</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DogeRay.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
   </ItemGroup>
 </Project>

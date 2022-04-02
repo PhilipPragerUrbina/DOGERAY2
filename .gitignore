@@ -1,5 +1,10 @@
 # Prerequisites
 *.d
+# icons
+*.aps
+*.ico
+*.rc
+*resource.h
 
 # Compiled Object files
 *.slo

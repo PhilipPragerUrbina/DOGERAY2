@@ -117,6 +117,7 @@
     <ClInclude Include="libraries\stb_image.h" />
     <ClInclude Include="libraries\stb_image_write.h" />
     <ClInclude Include="libraries\tiny_gltf.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main.cu" />
@@ -129,6 +130,12 @@
     <ClCompile Include="libraries\imgui\imgui_impl_sdlrenderer.cpp" />
     <ClCompile Include="libraries\imgui\imgui_tables.cpp" />
     <ClCompile Include="libraries\imgui\imgui_widgets.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="DogeRay.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
