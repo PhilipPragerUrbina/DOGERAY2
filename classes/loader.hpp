@@ -341,7 +341,7 @@ private:
             //update camera postion
             settings->cam.position = Vec3(old.x, old.y, old.z);
             //fov(convert to degrees)
-            settings->cam.degreefov = model.cameras[node.camera].perspective.yfov * (180.0 / 3.141592653589793238463);
+            settings->cam.degreefov = model.cameras[node.camera].perspective.yfov * (180.0f / 3.141592653589793238463);
             //update camera rotation
             //get rotation from transformation matrix
             linalg::aliases::float4x4 rotationmatrix = linalg::identity;

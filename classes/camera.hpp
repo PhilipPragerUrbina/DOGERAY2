@@ -22,11 +22,11 @@ public:
         //autofocus
         Vec3 focusdistance = (position - lookposition).length() + focusoffset;
         //convert fov from degrees to radians
-        radfov = degreefov * M_PI / 180;
+        radfov = degreefov * M_PI / 180.0f;
         float h = tan(radfov / 2);
         
         //height and width of viewport in unitys
-        float viewportheight = 2.0 * h;
+        float viewportheight = 2.0f * h;
         float viewportwidth = aspectratio * viewportheight;
 
         //camera direction

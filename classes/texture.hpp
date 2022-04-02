@@ -80,7 +80,7 @@ public:
         if (exists) {
             cudaDestroyTextureObject(texture);
             cudaFreeArray(device_data);
-            bool exists = false;
+            exists = false;
             std::cout << "texture destroyed \n";
         }
     }

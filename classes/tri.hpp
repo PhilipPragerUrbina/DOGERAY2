@@ -12,8 +12,8 @@ struct vertex {
 };
 //bounding box struct
 struct boundingbox {
-	Vec3 max{ 10000000000000 };
-	Vec3 min{ -1000000000000 };
+	Vec3 max{ 100000000.0f };
+	Vec3 min{ -100000000.0f };
 	Vec3 center;
 };
 

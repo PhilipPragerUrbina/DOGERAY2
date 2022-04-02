@@ -155,8 +155,8 @@ public:
                 settings.w *= settings.scale;
                 settings.h *= settings.scale;
                 if (settings.preview) {
-                    settings.w *= 0.5;
-                    settings.h *=0.5;
+                    settings.w *= 0.5f;
+                    settings.h *=0.5f;
 
                 }
                 //make divisble by 8 for cuda blocks
