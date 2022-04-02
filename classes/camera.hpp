@@ -14,13 +14,13 @@ public:
     float degreefov = 45;
     Vec3 up{ 0, 1, 0 };
     float aperture = 0;
-    float focusoffset = 0;
+    float focus = 1;
     
     //no constructor to allow this to be in struct
     //calculate camera parameters
     void calculate() {
         //autofocus
-        Vec3 focusdistance = (position - lookposition).length() + focusoffset;
+        Vec3 focusdistance = focus;
         //convert fov from degrees to radians
         radfov = degreefov * M_PI / 180.0f;
         float h = tan(radfov / 2);

@@ -117,7 +117,7 @@ public:
         changed |= ImGui::DragFloat3("camera position", settings->cam.position.values);
         //more camera options
         if (ImGui::CollapsingHeader("Lens")) {
-            changed |= ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
+            changed |= ImGui::DragFloat("Focus distance", &settings->cam.focus);
             changed |= ImGui::SliderFloat("aperture", &settings->cam.aperture, 0, 5);
             changed |= ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
             if (settings->cam.lookat) {

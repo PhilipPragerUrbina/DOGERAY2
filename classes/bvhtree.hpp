@@ -70,7 +70,7 @@ public:
 	//build BVH tree
 	void build() {
 		//split
-		std::cout << "building BVH \n";
+		std::cout << "building BVH\n";
 		recursivesplit(traingles);
 		std::cout << "linking BVH \n";
 		createlinks(0, -1);
@@ -106,7 +106,6 @@ private:
 			nodes.push_back(parent);
 			return parentindex;
 		}
-
 		//push current node
 		nodes.push_back(parent);
 		//get axis with most difference
@@ -114,7 +113,7 @@ private:
 		//split by middle
 		int mid = remaining.size() / 2;
 		//sort and split by center of bounding box
-		std::nth_element(remaining.begin(),remaining.begin()+mid, remaining.end(),
+		std::nth_element(remaining.begin(), remaining.begin() + mid, remaining.end(),
 			[axis](const Tri& a, const Tri& b) {
 				return a.box.center[axis] < b.box.center[axis];
 			});
