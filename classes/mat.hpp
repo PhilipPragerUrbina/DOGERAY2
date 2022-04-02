@@ -30,7 +30,7 @@ private:
 
 
 
-//I orignally wanted to use runtime polymorphism or function pointers. This proved to be very diffucult to copy from host to device without significant complexity.
+//I originally wanted to use runtime polymorphism or function pointers. This proved to be very difficult to copy from host to device without significant complexity.
 class Mat {
 public:
     //mat properties. Uses PBR inputs. 
@@ -63,11 +63,11 @@ public:
     //clean up textures
     void destroy() {
           colortexture.destroy();
-        //materialstoclean[i].normaltexture.destroy();
+        //normaltexture.destroy();
        roughtexture.destroy();
        emmisiontexture.destroy();
     }
-    //matririal hit function
+    //matriarchal hit function
     __device__  bool interact(Ray* ray, Vec3 texcoords , Vec3 hitpoint, Vec3 normal, Noise noise) {
      //update normals
       //  if (normaltexture.exists) {
@@ -85,7 +85,7 @@ public:
             if (emmisiontexture.exists) {
                 emmision = emmision * emmisiontexture.get(texcoords);
             }
-            //if this specific part of triangle is emmsive
+            //if this specific part of triangle is emisive
             if (emmision[0] > 0.1 || emmision[1] > 0.1 || emmision[2] > 0.1) {
                 //return light color
                 ray->attenuation = ray->attenuation * emmision;
@@ -95,7 +95,7 @@ public:
            
         }
 
-        //get mettalicrougness
+        //get metallic roughness
         float rough = roughfactor;
         float metal = metalfactor;
         if (roughtexture.exists) {
@@ -104,7 +104,7 @@ public:
 
         }
      
-        //calulate direction
+        //calculate direction
         //metal (No mixing since most of the time metal is metal)
         if (metal > 0.5) {
             ray->dir = ray->dir.normalized().reflected(normal) + Vec3(rough) * noise.unitsphere();
@@ -117,11 +117,11 @@ public:
             ray->dir = (target - hitpoint).normalized();
             ray->attenuation = ray->attenuation * color;
         }
-        //dialectric(plastic not glass)
+        //dialectic(plastic not glass)
         else {
             const float ior = 2.5;
             float cosine = min((-(ray->dir.normalized())).dot(normal), 1.0f);
-             //fresnel
+             //Fresnel
             if (reflectance(cosine, 1.0f / ior) > noise.rand()) {
                 //specular(metal without color)
                 ray->dir = ray->dir.normalized().reflected(normal) + Vec3(rough) * noise.unitsphere();
@@ -138,7 +138,7 @@ public:
         return false;
     };
     private:
-        //schlick approximation frm ray tracing in one weekend
+        //Schick approximation from ray tracing in one weekend
         __device__ float reflectance(float cosine, float ref_idx) {
             float r0 = (1 - ref_idx) / (1 + ref_idx);
             r0 = r0 * r0;

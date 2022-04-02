@@ -12,7 +12,7 @@ public:
 		origin = o;
 	}
 
-	//get ray postion from distance
+	//get ray position from distance
 	__device__ Vec3 at(float distance) {
 		return origin + (dir * distance);
 	}	

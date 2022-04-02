@@ -17,7 +17,7 @@ public:
     float focusoffset = 0;
     
     //no constructor to allow this to be in struct
-    //calculate camera paramters
+    //calculate camera parameters
     void calculate() {
         //autofocus
         Vec3 focusdistance = (position - lookposition).length() + focusoffset;
@@ -25,7 +25,7 @@ public:
         radfov = degreefov * M_PI / 180.0f;
         float h = tan(radfov / 2);
         
-        //height and width of viewport in unitys
+        //height and width of viewport in units
         float viewportheight = 2.0f * h;
         float viewportwidth = aspectratio * viewportheight;
 

@@ -2,7 +2,7 @@
 #include "world.hpp"
 #include <chrono>
 #include <iostream>
-//comment and uncomment this to print render time to console. Normally disabled for max performance,but is uesful for testing
+//comment and uncomment this to print render time to console. Normally disabled for max performance,but is useful for testing
 //#define recordspeed
 
 //the actual kernel. It cannot be a member function
@@ -23,14 +23,14 @@ __global__ void raytracekernel(uint8_t* image,World scene) {
 	//trace ray
 	Vec3 color = scene.color(currentray,noise);
 
-	//set image color if first sample(mult by 255 and clamp since color are currently in randge of 0-1)
+	//set image color if first sample(mult by 255 and clamp since color are currently in range of 0-1)
 	if (scene.settings.samples <= 0) {
 		image[w    ] = fmin(color[0] * 255, 255.0f);
 		image[w + 1] = fmin(color[1] * 255, 255.0f);
 		image[w + 2] = fmin(color[2] * 255, 255.0f);
 	}
 	else {
-		//if not first sample, contenusly update average of output
+		//if not first sample, contentiously update average of output
 		//we add to the average rather than calculating it in order to avoid having divide on the host side
 		image[w    ] = (scene.settings.samples * image[w    ] + fmin(color[0] * 255, 255.0f)) / (scene.settings.samples + 1);
 		image[w + 1] = (scene.settings.samples * image[w + 1] + fmin(color[1] * 255, 255.0f)) / (scene.settings.samples + 1);
@@ -69,7 +69,7 @@ public:
 		size_t matsize = sizeof(Mat) * settings.matsize;
 		status = cudaMalloc((void**)&device_materials, matsize);
 		if (status != cudaSuccess) { std::cerr << "error allocating materials on device \n"; return; }
-		std::cout << "GPU memory succesfully allocated \n";
+		std::cout << "GPU memory successfully allocated \n";
 
 		//copy over data
 		status = cudaMemcpy(device_geometry, geometry, geosize, cudaMemcpyHostToDevice); 
@@ -77,7 +77,7 @@ public:
 
 		status = cudaMemcpy(device_materials, materials, matsize, cudaMemcpyHostToDevice);
 		if (status != cudaSuccess) { std::cerr << "error copying materials on device \n"; return; }
-		std::cout << "GPU memory succesfully copied over \n";
+		std::cout << "GPU memory successfully copied over \n";
 	}
 	//render out an image
 	void render(uint8_t* image, config settings) {
@@ -99,7 +99,7 @@ public:
 		rendertime();
 		#endif
 	}
-	//clean up matirials
+	//clean up materials
 	void cleantextures() {
 		for (int i = 0; i < nummaterials; i++) {
 			materialstoclean[i].destroy();
@@ -113,7 +113,7 @@ public:
 		cudaFree(device_materials);
 	}
 
-	//check for errors afetr kernel launch. Use when kernel is displaying black.
+	//check for errors after kernel launch. Use when kernel is displaying black.
 	void errorcheck() {
 		status = cudaGetLastError();
 		if (status != cudaSuccess){std::cerr << "kernel launch error: " << cudaGetErrorString(status) << "\n";}

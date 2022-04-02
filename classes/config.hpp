@@ -25,6 +25,6 @@ public:
 	bool saveimage = false;
 	//max bounces
 	int maxdepth = 3;
-	//# of samaples taken
+	//# of samples taken
 	int samples = 0;
 };

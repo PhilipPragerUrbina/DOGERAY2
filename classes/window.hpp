@@ -1,5 +1,5 @@
 #pragma once
-//we are usign the SDL libary to handel windows
+//we are using the SDL library to handle windows
 #include <SDL.h>
 #include <iostream>
 #include <string>
@@ -13,17 +13,17 @@ public:
     //name of window for top
     std::string name;
 
-    //get height and width. Fucntions to prevent modifying
+    //get height and width. Functions to prevent modifying
     int getW() { return width;}
     int getH() { return width; } 
 
     //constructor
     Window(std::string n,int w, int h) {
 
-        //constructor sets intitial dimensions.
+        //constructor sets initial dimensions.
         width = w;
         height = h;
-        //The name is also set on construction. I coudl have hardcoded it, but this class may be used for other things so it is good tokeep it flexible
+        //The name is also set on construction. I could have hard coded it, but this class may be used for other things so it is good to keep it flexible
         name = n;
 
         //initialize SDL
@@ -35,10 +35,10 @@ public:
             SDLrenderer = SDL_CreateRenderer(SDLwindow, 0, 0);
             //create texture
             SDLtexture = SDL_CreateTexture(SDLrenderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, width, height);
-            std::cout << "Window inititialized succesfully \n";
+            std::cout << "Window initialized successfully \n";
         }
         else {
-            //error intitizlaing SDL
+            //error initializing SDL
             std::cerr << "SDL init error: " << SDL_GetError();
         }
     }
@@ -65,7 +65,7 @@ public:
     uint8_t* getTex() {
         //pointer of data to edit
         uint8_t* data;
-        //wdith of texture
+        //width of texture
         int pitch;
         //allow writing of tex.
         SDL_LockTexture(SDLtexture, NULL, (void**)&data, &pitch);

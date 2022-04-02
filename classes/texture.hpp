@@ -22,11 +22,11 @@ public:
         return Vec3(float(texdata.x) / 255.0f, float(texdata.y) / 255.0f, float(texdata.z) / 255.0f);
     }
 
-    //you may be wondering why this isnt a constructor and destructor the reason is that this is allocating memory on the GPU so it only should be called once during the lifetime of the program
+    //you may be wondering why this isn't a constructor and destructor the reason is that this is allocating memory on the GPU so it only should be called once during the lifetime of the program
     void create(unsigned char* data, int width, int height, int numchannels, int bits) {
         //calc sizes
         size_t typesize = bits / 8 * numchannels;
-        size_t pitch = width * typesize; //widthof data
+        size_t pitch = width * typesize; //width of data
         //create channel description
         //most have 4 channels
         cudaChannelFormatDesc channels = cudaCreateChannelDesc(bits, bits, bits, bits, cudaChannelFormatKindUnsigned);
@@ -70,7 +70,7 @@ public:
         //finally create texture object
         status = cudaCreateTextureObject(&texture, &recource, &texturesettings, NULL);
         if (status != cudaSuccess) { std::cerr << "error creating texture on device \n"; return; }
-        std::cout << bits << " bit " << numchannels << " channel texture loaded succesfully \n";
+        std::cout << bits << " bit " << numchannels << " channel texture loaded successfully \n";
         //texture now exists
         exists = true;
     }

@@ -9,7 +9,7 @@ public:
 	boundingbox box;
 	// is a leaf node
 	bool isleaf = false;
-	//traingle object it contains if it is a leaf node
+	//triangle object it contains if it is a leaf node
 	Tri traingle;
 	//children
 	int indexofchilda;
@@ -17,9 +17,9 @@ public:
 	//links
 	int hitnode;
 	int missnode;
-	//axis aligned bounding box (inline since it is called a huge number of times)
+	//axis aligned bounding box (in-line since it is called a huge number of times)
 	inline __device__ bool testbox(Ray ray) {
-		//based on pixar AABB function
+		//based on Pixar AABB function
 		float tmin = (box.min[0] - ray.origin[0]) / ray.dir[0];
 		float tmax = (box.max[0] - ray.origin[0]) / ray.dir[0];
 		//t_min must be less than max
@@ -33,7 +33,7 @@ public:
 			auto t0 = (box.min[a] - ray.origin[a]) * invD;
 			auto t1 = (box.max[a] - ray.origin[a]) * invD;
 			if (invD < 0.0f) {
-				//CUDA does nat support std::swap
+				//CUDA does not support std::swap
 				float temp = t1;
 				t1 = t0;
 				t0 = temp;
@@ -48,7 +48,7 @@ public:
 	}
 };
 
-//helper fucntioons for bvh building
+//helper functions for BVH building
 //function for computing the bounding box of multiple objects
 boundingbox arrayboundingbox(std::vector<Tri>& in) {
 
@@ -67,7 +67,7 @@ public:
 	Bvhtree(std::vector<Tri> in) {
 		traingles = in;
 	}
-	//build bvh tree
+	//build BVH tree
 	void build() {
 		//split
 		std::cout << "building BVH \n";
@@ -86,15 +86,15 @@ public:
 private:
 	//store triangles to be sorted into tree
 	std::vector<Tri> traingles;
-	//array of nodes to be put on gpu later
+	//array of nodes to be put on GPU later
 	std::vector<bvhnode> nodes;
-	//recursivley split bvh into nodes until there are elaf nodes with one triangle
+	//recursively split BVH into nodes until there are leaf nodes with one triangle
 	int recursivesplit(std::vector<Tri> remaining) {
-		//node is created on the stack since it will be stored on an array later and passed to the gpu
+		//node is created on the stack since it will be stored on an array later and passed to the GPU
 		bvhnode parent;
 		//store index of current node. The node has node been pushed yet so the fact that .size() returns an index 1 bigger is good
 		int parentindex = nodes.size();
-		//create boudning box of node
+		//create bounding box of node
 		parent.box = arrayboundingbox(remaining);
 		//check if leaf
 		if (remaining.size() == 1) {
@@ -109,7 +109,7 @@ private:
 
 		//push current node
 		nodes.push_back(parent);
-		//get axis with most differnce
+		//get axis with most difference
 		int axis = (parent.box.max - parent.box.min).extent();
 		//split by middle
 		int mid = remaining.size() / 2;
@@ -129,7 +129,7 @@ private:
 				b.push_back(remaining[i]);
 			}
 		}
-		//proccess children nodes 
+		//process children nodes 
 		//set the ids where the children are
 		nodes[parentindex].indexofchilda = recursivesplit(a);
 		nodes[parentindex].indexofchildb = recursivesplit(b);
@@ -137,7 +137,7 @@ private:
 		return parentindex;
 	}
 
-	//create links for stackless bvh traversal later
+	//create links for stack less BVH traversal later
 	void createlinks(int current, int right) {
 		if (nodes[current].isleaf) {
 			//is at end. hit or miss means go to up right node in tree
@@ -152,7 +152,7 @@ private:
 			nodes[current].hitnode = child1;
 			//miss means go to up right node
 			nodes[current].missnode = right;
-			//reucrisvley create links
+			//recursively create links
 			createlinks(child1, child2);
 			createlinks(child2, right);
 		}

@@ -83,7 +83,7 @@ public:
     }
 
     //operators
-    //access x like Vec3[0] for conveince. This is better thnat vec2.x since you can use loops
+    //access x like Vec3[0] for convince. This is better that vec2.x since you can use loops
     __host__ __device__  inline  float operator [](int i) const { return values[i]; }
     __host__ __device__  inline  float& operator [](int i) { return values[i]; }
     __host__ __device__ inline  Vec3 operator+(const Vec3& b) const {

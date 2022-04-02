@@ -24,7 +24,7 @@ public:
     int vertexcount = 0;
 	//set filename on creation of class
 	string filename = "";
-    //store triangles afetr they have been loaded
+    //store triangles after they have been loaded
     vector<Tri> loadedtris;
     //store materials
     vector<Mat> loadedmaterials;
@@ -41,11 +41,11 @@ public:
 	void loadGLTF() {
         //create model for library
         tinygltf::Model model = loadgltfmodel(filename);
-        //recursivley load it into array
+        //recursively load it into array
         creategltfmodel(model);
         //check
         if (loadedmaterials.size() == 0) {
-            std::cerr << "no matirials found \n";
+            std::cerr << "no materials found \n";
         }
         if (loadedtris.size() == 0) {
             std::cerr << "no tris found \n";
@@ -56,7 +56,7 @@ public:
             //choose between x or z axis for camera
             int axis = 0;
             if (maxdim[2] < maxdim[0]) {
-                //axis which camera is on is the axis with the least max dimesions(least width)
+                //axis which camera is on is the axis with the least max dimensions(least width)
                 //this is so we get a side view of the object
                 axis = 2;
             }
@@ -67,7 +67,7 @@ public:
         }
         //print info
         if (containsnontris) { cout << "warning: Model may contain non tris \n"; }
-        cout << "GLTF model parsed succesfully! \n";
+        cout << "GLTF model parsed successfully! \n";
         cout << loadedtris.size() << " tris \n";
         cout << vertexcount << " verts \n";
 	};
@@ -103,7 +103,7 @@ private:
             cerr << "GLTF failed";
         }
         else {
-            cout << "GLTF model loaded succesfully \n";
+            cout << "GLTF model loaded successfully \n";
         }
         return model;
     }
@@ -125,7 +125,7 @@ private:
             }
             //create mat if not exist
             if (arraymaterialid == -1) {       
-                //get gltf matirial
+                //get gltf material
                 auto gltfmat = model.materials[mesh.primitives[i].material];
                 //set color
                 Vec3 color(gltfmat.pbrMetallicRoughness.baseColorFactor[0], gltfmat.pbrMetallicRoughness.baseColorFactor[1], gltfmat.pbrMetallicRoughness.baseColorFactor[2]);
@@ -133,17 +133,17 @@ private:
                 //create and add mat
                 Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor,emmision);
                
-                //load color tetxure
+                //load color texture
                 if (gltfmat.pbrMetallicRoughness.baseColorTexture.index != -1){
                     auto colorimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.baseColorTexture.index].source];
                     newmat.colortexture.create(colorimage.image.data(), colorimage.width, colorimage.height, colorimage.component, colorimage.bits);
                 }
-                //load rough tetxure
+                //load rough texture
                 if (gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index != -1) {
                     auto roughimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.metallicRoughnessTexture.index].source];
                     newmat.roughtexture.create(roughimage.image.data(), roughimage.width, roughimage.height, roughimage.component, roughimage.bits);
                 }
-                //load emmision map
+                //load emission map
                 if (gltfmat.emissiveTexture.index != -1) {
                     auto emimage = model.images[model.textures[gltfmat.emissiveTexture.index].source];
                     newmat.emmisiontexture.create(emimage.image.data(), emimage.width, emimage.height, emimage.component, emimage.bits);
@@ -158,7 +158,7 @@ private:
                 //set id
                 arraymaterialid = loadedmaterials.size()-1;
             }
-            //get indeces for correct number of tris
+            //get indices for correct number of tris
             tinygltf::Accessor indexAccessor = model.accessors[mesh.primitives[i].indices];
             tinygltf::BufferView& ibufferView = model.bufferViews[indexAccessor.bufferView];
             tinygltf::Buffer& ibuffer = model.buffers[ibufferView.buffer];
@@ -169,7 +169,7 @@ private:
             const int* indexes;
             //some have ints of 2, some have of 4
             bool indexis16bit = indexAccessor.ByteStride(ibufferView) == 2;
-            //reinpret once for efficency
+            //reinterpret once for efficiency
             if (indexis16bit) {
                 smallindexes = reinterpret_cast<const uint16_t*>(&ibuffer.data[ibufferView.byteOffset + indexAccessor.byteOffset]);
 
@@ -177,7 +177,7 @@ private:
                 indexes = reinterpret_cast<const int*>(&ibuffer.data[ibufferView.byteOffset + indexAccessor.byteOffset]);
             }
 
-            //get tri postitons
+            //get tri positions
             tinygltf::Accessor& accessor = model.accessors[mesh.primitives[i].attributes["POSITION"]];
             tinygltf::BufferView& bufferView = model.bufferViews[accessor.bufferView];
             tinygltf::Buffer& buffer = model.buffers[bufferView.buffer];
@@ -195,14 +195,14 @@ private:
             tinygltf::Buffer& buffer2 = model.buffers[bufferView2.buffer];
             const float* tex = reinterpret_cast<const float*>(&buffer2.data[bufferView2.byteOffset + accessor2.byteOffset]);
           
-            //triange index. Which vertex out of 3 is it.
+            //triangle index. Which vertex out of 3 is it.
             int e = 0;
             Tri newtri;
             newtri.materialid = arraymaterialid;
             //update vertex count
             vertexcount += accessor.count;
         
-            //loop through the indeces(vertices in traingles)
+            //loop through the indices(vertices in triangles)
             for (size_t i = 0; i < indexAccessor.count; i++) {
                 //get index
                 int index;
@@ -228,7 +228,7 @@ private:
                     newtri.verts[e].pos[0] = old.x;
                     newtri.verts[e].pos[1] = old.y;
                     newtri.verts[e].pos[2] = old.z;
-                    //set new max dimensions for camera postioning algorthm
+                    //set new max dimensions for camera positioning algorithm
                     if (old.x > maxdim[0]) {
                         maxdim[0] = old.x;
                     }
@@ -245,7 +245,7 @@ private:
                         rotationmatrix[x][y] = globalmatrix[x][y];
                     }
                 }
-                //apply matrix rotation to nromal
+                //apply matrix rotation to normal
                 linalg::aliases::float4 old2;
                 old2.x = newtri.verts[e].norm[0];
                 old2.y = newtri.verts[e].norm[1];
@@ -264,7 +264,7 @@ private:
 
                 e++;
                 if (e == 3) {
-                    //finsished triangle. Submit to all triangles
+                    //finished triangle. Submit to all triangles
                     e = 0;
                     loadedtris.push_back(newtri);
                 }
@@ -318,7 +318,7 @@ private:
                 }
             }
        
-            //create scale amtrix
+            //create scale matrix
             linalg::aliases::float4x4 scalematrix = linalg::identity;
             if (node.scale.size() > 0) {
                 scalematrix[0][0] = node.scale[0];
@@ -334,11 +334,11 @@ private:
 
 
         if (node.camera > -1 && !camerafound) {
-            //empty postion
+            //empty position
             linalg::aliases::float4 old{ 0,0,0,1 };
             //apply matrix
             old = mul(globalmatrix, old);
-            //update camera postion
+            //update camera position
             settings->cam.position = Vec3(old.x, old.y, old.z);
             //fov(convert to degrees)
             settings->cam.degreefov = model.cameras[node.camera].perspective.yfov * (180.0f / 3.141592653589793238463);

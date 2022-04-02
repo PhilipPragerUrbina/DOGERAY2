@@ -16,7 +16,7 @@ public:
     std::string name;
     //bg color
     ImVec4 backgroundcolor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-    //allow main loop outisde of class to check if exit has been called
+    //allow main loop outside of class to check if exit has been called
     bool exit = false;
 
     //constructor does initial setup
@@ -45,7 +45,7 @@ public:
         // set SDL as backend
         ImGui_ImplSDL2_InitForSDLRenderer(GUIwindow, GUIrenderer);
         ImGui_ImplSDLRenderer_Init(GUIrenderer);
-        std::cout << "GUI inititialized succesfully \n";
+        std::cout << "GUI initialized successfully \n";
     }
 
     ~Gui() {
@@ -71,7 +71,7 @@ public:
                 exit = true;
             }    
             //TODO add hotkeys here
-             //if this class is re-used. Just replace this whith your events.  
+             //if this class is re-used. Just replace this with your events.  
          /*   if (event.type == SDL_KEYDOWN) {
                switch (event.key.keysym.sym) {
 
@@ -85,7 +85,7 @@ public:
         ImGui::NewFrame();
 
         //show window contents
-        //if this class is re-used. Just replace this whith your gui.
+        //if this class is re-used. Just replace this with your gui.
 
         //start gui box
         ImGui::Begin("Controls");                        
@@ -118,7 +118,7 @@ public:
         //more camera options
         if (ImGui::CollapsingHeader("Lens")) {
             changed |= ImGui::DragFloat("focus distance", &settings->cam.focusoffset);
-            changed |= ImGui::SliderFloat("apeture", &settings->cam.aperture, 0, 5);
+            changed |= ImGui::SliderFloat("aperture", &settings->cam.aperture, 0, 5);
             changed |= ImGui::SliderFloat("FOV", &settings->cam.degreefov, 0, 180);
             if (settings->cam.lookat) {
                 changed |= ImGui::DragFloat3("look at", settings->cam.lookposition.values);
@@ -132,7 +132,7 @@ public:
         if (ImGui::CollapsingHeader("Background")) {
             ImGui::Text("Put image file named 'background' in file directory to have image background ");
             changed |= ImGui::ColorEdit3("Background color", settings->backgroundcolor.values);
-            changed |= ImGui::DragFloat("Background intestity", &settings->backgroundintensity, 0.1);
+            changed |= ImGui::DragFloat("Background intensity", &settings->backgroundintensity, 0.1);
         }
 
          ImGui::Checkbox("Show BVH", &settings->bvh);
@@ -149,7 +149,7 @@ public:
         
         // render
         ImGui::Render();
-        //set backfround/clear color
+        //set background/clear color
         SDL_SetRenderDrawColor(GUIrenderer, (Uint8)(backgroundcolor.x * 255), (Uint8)(backgroundcolor.y * 255), (Uint8)(backgroundcolor.z * 255), (Uint8)(backgroundcolor.w * 255));
         //reset canvas
         SDL_RenderClear(GUIrenderer);

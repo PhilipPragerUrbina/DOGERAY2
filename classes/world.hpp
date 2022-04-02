@@ -1,7 +1,7 @@
 #pragma once
 #include "bvhtree.hpp"
 #include "mat.hpp"
-//class to contain kernel opertations
+//class to contain kernel operations
 class World {
 public:
 	//host defined settings
@@ -18,7 +18,7 @@ public:
 		tree = BVH;
 	}
 
-	//ray color fucntion
+	//ray color function
 	__device__ Vec3 color(Ray ray, Noise noise) {
 		//bvh view
 		if (settings.bvh) {
@@ -34,9 +34,9 @@ public:
 				Vec3 hitpoint = ray.at(distance);
 				Vec3 normal = getnormal();
 				Vec3 texcoords = gettexcoords();
-				//use matririal
+				//use material
 				if (materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, noise)) {
-					//emmisive
+					//missive
 					return ray.attenuation;
 				}
 			}
@@ -60,7 +60,7 @@ public:
 			
 			}
 		}
-		//return color if one baunce to avoid black preview
+		//return color if one bounce to avoid black preview
 		if (settings.maxdepth == 1) {
 			return   ray.attenuation;
 		}
@@ -78,12 +78,12 @@ private:
 	__device__ bool intersect(Ray ray) {
 		//minimum distance so far
 		float mindist = 100000;
-		//is soemthing hit
+		//is something hit
 		bool ishit = false;
 		//stackless bvh traversal
 		int index = 0;
 		while (index != -1) {
-			//keep track of # of travsersals for BVH heatmap
+			//keep track of # of traversals for BVH heatmap
 			traversalcount++;
 			//get current node
 			bvhnode currentnode = tree[index];
@@ -91,7 +91,7 @@ private:
 			if (currentnode.testbox(ray)) {
 				//if is a triangle test triangle
 				if (currentnode.isleaf) {
-					//traingle hit output
+					//triangle hit output
 					float tempdist;
 					Vec3 tempuv;
 					if (currentnode.traingle.hit(ray, tempdist, tempuv)) {

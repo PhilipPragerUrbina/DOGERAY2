@@ -8,7 +8,7 @@
 
 //for checking if thread finished
 bool threaddone = true;
-//render on spereate thread to not slow down program gui
+//render on separate thread to not slow down program gui
 void render(config set, uint8_t* data, Window* win, Tracekernel* shader) {
     if(threaddone) {
         return;
@@ -25,7 +25,7 @@ void render(config set, uint8_t* data, Window* win, Tracekernel* shader) {
 //main program class
 class Program {
 public:
-    //congfiguration for host side to device side
+    //configuration for host side to device side
     config settings;
     //output data
     uint8_t* data;
@@ -96,7 +96,7 @@ public:
                 break;
             }
         } 
-        //chack if background file exists
+        //check if background file exists
         if (filename != "") {
             cout << "background found: " << filename << "\n";
             //load image
@@ -111,7 +111,7 @@ public:
         }
     }
 
-    //intitialize ui
+    //initialize ui
     void initui(int width, int height) {
         //update aspect ratio of camera based on resolution
         settings.cam.calcaspectratio(width, height);
@@ -121,7 +121,7 @@ public:
         gui = new Gui("DOGERAY-gui", 500, 400);
         win = new Window("DOGERAY2", width, height);
 
-        //set configuration dimenasions
+        //set configuration dimensions
         settings.h = height;
         settings.w = width;
     }
@@ -159,12 +159,12 @@ public:
                     settings.h *=0.5f;
 
                 }
-                //make divisble by 8 for cuda blocks
+                //make divisible by 8 for cuda blocks
                 settings.w = 8 * int(settings.w / 8);
                 settings.h = 8 * int(settings.h / 8);
                 if (prevw != settings.w || prevh != settings.h) {
                     //resolution changed
-                    //update erverthing
+                    //update everything
                     shader->resize(settings);
                     win->resizeresolution(settings);
                     settings.cam.calcaspectratio(settings.w, settings.h);
@@ -183,7 +183,7 @@ public:
                 settings.samples++;    
            }
         }
-        //wait for thread to finsih before exiting
+        //wait for thread to finish before exiting
         if (!threaddone) {
             renderthread.join();
         }

@@ -24,7 +24,7 @@ public:
 	int materialid = 0;
 
 	boundingbox getboundingbox() {
-		//return minimum and maximum position values from traingle for bvh construction
+		//return minimum and maximum position values from triangle for bvh construction
 		//add slight bit for perfectly flat triangles to work
 		const float flaterror = 0.001f;
 		box.min = Vec3(fmin(verts[0].pos[0], fmin(verts[1].pos[0], verts[2].pos[0])), fmin(verts[0].pos[1], fmin(verts[1].pos[1], verts[2].pos[1])), fmin(verts[0].pos[2], fmin(verts[1].pos[2], verts[2].pos[2]))) - Vec3(flaterror);
@@ -55,7 +55,7 @@ public:
 
 		dist = v0v2.dot(qvec) * invdet;
 		const float delta = 0.0001f;
-		if (dist > delta) //check if in small range. this is to stop ray from intersecting with traingle again after bounce.
+		if (dist > delta) //check if in small range. this is to stop ray from intersecting with triangle again after bounce.
 		{
 			return true;
 		}

@@ -3,7 +3,7 @@ int main(int argc, char* args[])
 {
     Program raytracer;
     raytracer.displaytitle();
-    //check what file to open. if none specified, try to open defualt file. Normally you use "open with" to open scenes.
+    //check what file to open. if none specified, try to open default file. Normally you use "open with" to open scenes.
     std::string filename = "defualt.gltf";
     if (argc > 1)  filename = args[1];
     //width and height
