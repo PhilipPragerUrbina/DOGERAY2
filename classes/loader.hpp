@@ -4,12 +4,10 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "tiny_gltf.h"
-//standard library
 #include <stdio.h>
 #include <iostream>
 #include <string>
 #include <vector>
-//include triangle classs
 #include "tri.hpp"
 #include "config.hpp"
 //needed for transformations
@@ -41,11 +39,9 @@ public:
 
 	//load GLTF file
 	void loadGLTF() {
-        
- 
         //create model for library
         tinygltf::Model model = loadgltfmodel(filename);
-        //recusivley load it into array
+        //recursivley load it into array
         creategltfmodel(model);
         //check
         if (loadedmaterials.size() == 0) {
@@ -80,7 +76,7 @@ private:
     config* settings;
     bool containsnontris = false;
     bool camerafound = false;
-    //for choosing aoutomatic camera pos
+    //for choosing auto camera pos
     Vec3 maxdim{0};
     //use library to open up model
     tinygltf::Model loadgltfmodel(string filename) {
@@ -89,7 +85,6 @@ private:
         string err;
         string warn;
         bool res;
-
         //check if binary gltf file(GLB)
         if (filename.substr(filename.find_last_of(".") + 1) == "glb") {
             res = gltfloader.LoadBinaryFromFile(&model, &err, &warn, filename);
@@ -106,15 +101,12 @@ private:
         }
         if (!res) {
             cerr << "GLTF failed";
-            exit(1);
         }
         else {
             cout << "GLTF model loaded succesfully \n";
         }
-
         return model;
     }
-
     //create triangles from GLTF mesh and set attributes
     void createmesh(tinygltf::Model& model, tinygltf::Mesh& mesh, linalg::aliases::float4x4 globalmatrix) {
         //for each tri
@@ -132,8 +124,7 @@ private:
                 }
             }
             //create mat if not exist
-            if (arraymaterialid == -1) {
-         
+            if (arraymaterialid == -1) {       
                 //get gltf matirial
                 auto gltfmat = model.materials[mesh.primitives[i].material];
                 //set color
@@ -142,8 +133,6 @@ private:
                 //create and add mat
                 Mat newmat(gltfmaterialid, color, gltfmat.pbrMetallicRoughness.metallicFactor,gltfmat.pbrMetallicRoughness.roughnessFactor,emmision);
                
-           
-
                 //load color tetxure
                 if (gltfmat.pbrMetallicRoughness.baseColorTexture.index != -1){
                     auto colorimage = model.images[model.textures[gltfmat.pbrMetallicRoughness.baseColorTexture.index].source];
@@ -160,21 +149,15 @@ private:
                     newmat.emmisiontexture.create(emimage.image.data(), emimage.width, emimage.height, emimage.component, emimage.bits);
                 }
 
-
                 //load normal map
              //   if (gltfmat.normalTexture.index != -1) {
                //     auto normalimage = model.images[model.textures[gltfmat.normalTexture.index].source];
                //     newmat.normaltexture.create(normalimage.image.data(), normalimage.width, normalimage.height, normalimage.component, normalimage.bits);
                // }
                loadedmaterials.push_back(newmat);
-    
-
                 //set id
                 arraymaterialid = loadedmaterials.size()-1;
             }
-
-
-
             //get indeces for correct number of tris
             tinygltf::Accessor indexAccessor = model.accessors[mesh.primitives[i].indices];
             tinygltf::BufferView& ibufferView = model.bufferViews[indexAccessor.bufferView];
@@ -184,10 +167,8 @@ private:
             const uint16_t* smallindexes;
             //4 byte indexes
             const int* indexes;
-
             //some have ints of 2, some have of 4
             bool indexis16bit = indexAccessor.ByteStride(ibufferView) == 2;
-
             //reinpret once for efficency
             if (indexis16bit) {
                 smallindexes = reinterpret_cast<const uint16_t*>(&ibuffer.data[ibufferView.byteOffset + indexAccessor.byteOffset]);
@@ -279,7 +260,6 @@ private:
                 newtri.verts[e].norm = newtri.verts[e].norm.normalized();
 
                 //set tex 
-      
                 newtri.verts[e].tex = Vec3(tex[index * 2 + 0], tex[index * 2 + 1], 0);
 
                 e++;
@@ -308,12 +288,8 @@ private:
                     localmatrix[x][y] = node.matrix[(x * 4) + y];
                 }
             }
-            //update global transform
-          
+            //update global transform  
                 globalmatrix = mul(globalmatrix,localmatrix);
-            
-         
-
         }
         else{
             //does not have matrix. Needs to be created from TRS
@@ -342,7 +318,6 @@ private:
                 }
             }
        
-         
             //create scale amtrix
             linalg::aliases::float4x4 scalematrix = linalg::identity;
             if (node.scale.size() > 0) {
@@ -353,13 +328,8 @@ private:
             //get local matrix
             linalg::aliases::float4x4 localmatrix = mul(mul(translationmatrix, rotationmatrix), scalematrix);
           
-         
             //apply transformation
-     
-
                 globalmatrix = mul(globalmatrix,localmatrix);
-            
-
         }
 
 
@@ -385,11 +355,7 @@ private:
             old2 = mul(rotationmatrix, old2); 
             //add a little bit to avoid zero errors
             settings->cam.rotation = Vec3(old2.x , old2.y, old2.z + 0.001f);
-           
-          
-          settings->cam.lookat = false;
-
-
+            settings->cam.lookat = false;
             camerafound = true;
             cout << "camera found at: " << settings->cam.position  <<  " with rotation: " << settings->cam.rotation  << " with fov: " << settings->cam.degreefov<< "\n";
         }

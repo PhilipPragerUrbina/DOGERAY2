@@ -58,25 +58,25 @@ public:
     }
 
     void update(config* settings) {
-
         //poll events
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             //exit events
             ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
+            if (event.type == SDL_QUIT) {
                 exit = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
+            }
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE) {
                 exit = true;
-
+            }    
             //TODO add hotkeys here
-        //    if (event.type == SDL_KEYDOWN) {
-          //      switch (event.key.keysym.sym) {
+             //if this class is re-used. Just replace this whith your events.  
+         /*   if (event.type == SDL_KEYDOWN) {
+               switch (event.key.keysym.sym) {
 
-         //       }
-         //   }
-            //if this class is re-used. Just replace this whith your events.  
+                }
+           }*/
         }
 
         //create IMGUI frame
@@ -107,6 +107,7 @@ public:
                 settings->preview = true;
             }
         }
+
         //quality settings
         ImGui::DragFloat("Resolution Scale", &settings->scale, 0.1, 0.1, 3);
         ImGui::SliderInt("# of bounces", &settings->maxdepth, 1, 10);
@@ -126,11 +127,10 @@ public:
                 changed |= ImGui::DragFloat3("rotation", settings->cam.rotation.values, 0.02);
             }
             changed |= ImGui::Checkbox("Look At", &settings->cam.lookat);
-         
-        
         }
      
         if (ImGui::CollapsingHeader("Background")) {
+            ImGui::Text("Put image file named 'background' in file directory to have image background ");
             changed |= ImGui::ColorEdit3("Background color", settings->backgroundcolor.values);
             changed |= ImGui::DragFloat("Background intestity", &settings->backgroundintensity, 0.1);
         }
@@ -140,6 +140,7 @@ public:
          ImGui::End();
 
          if (changed) {
+             //settings samples to zero resets rendered image samples
              settings->samples = 0;
          }
          //update camera

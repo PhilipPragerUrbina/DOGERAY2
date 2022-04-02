@@ -1,10 +1,9 @@
 #pragma once
 #include"vec3.hpp"
-
 //class for keeping track of textures
 class Texture {
 public:
-    //error checkings
+    //error checking
     cudaError_t status;
 
     //gpu data
@@ -60,7 +59,7 @@ public:
         recource.res.array.array = device_data;
 
         //texture settings
-        //TODO tweak settings. Mabey change them based on GLTF sampler
+        //TODO tweak settings. Potentially change them based on GLTF sampler
         cudaTextureDesc texturesettings;
         memset(&texturesettings, 0, sizeof(cudaTextureDesc));
         texturesettings.normalizedCoords = true;
@@ -68,7 +67,7 @@ public:
         texturesettings.addressMode[0] = cudaAddressModeWrap;
         texturesettings.addressMode[1] = cudaAddressModeWrap;
 
-        //finally create texure object
+        //finally create texture object
         status = cudaCreateTextureObject(&texture, &recource, &texturesettings, NULL);
         if (status != cudaSuccess) { std::cerr << "error creating texture on device \n"; return; }
         std::cout << bits << " bit " << numchannels << " channel texture loaded succesfully \n";

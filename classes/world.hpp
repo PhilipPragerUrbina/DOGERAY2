@@ -1,14 +1,12 @@
 #pragma once
 #include "bvhtree.hpp"
 #include "mat.hpp"
-
-
 //class to contain kernel opertations
 class World {
 public:
 	//host defined settings
 	config settings;
-	//geomtry pointer
+	//geometry pointer
 	bvhnode* tree;
 	//materials pointer
 	Mat* materials;
@@ -22,6 +20,7 @@ public:
 
 	//ray color fucntion
 	__device__ Vec3 color(Ray ray, Noise noise) {
+		//bvh view
 		if (settings.bvh) {
 			intersect(ray);
 			return Vec3(traversalcount/255.0f);
@@ -37,13 +36,14 @@ public:
 				Vec3 texcoords = gettexcoords();
 				//use matririal
 				if (materials[triangle.materialid].interact(&ray, texcoords, hitpoint, normal, noise)) {
+					//emmisive
 					return ray.attenuation;
 				}
 			}
 			else {
 				//ray misses
-				//bg color
 				if (settings.backgroundtexture.exists) {
+					//use bg texture
 					Vec3 normalizeddir = ray.dir.normalized();
 					float m = 2.0f * sqrt(pow(normalizeddir[0], 2.0f) + pow(normalizeddir[1], 2.0f) + pow(normalizeddir[2] , 2.0f));
 					Vec3 t = normalizeddir / m + 0.5;
@@ -52,6 +52,7 @@ public:
 					return  ray.attenuation * bgcolor * settings.backgroundintensity;
 				}
 				else {
+					//use generic bg
 					float t = 0.5 * (-ray.dir.normalized()[1] + 1.0);
 					Vec3 color = settings.backgroundcolor / 255.0f;
 					return ray.attenuation * Vec3(1.0 - t) * Vec3(settings.backgroundintensity) + Vec3(t) * settings.backgroundcolor;
@@ -59,6 +60,7 @@ public:
 			
 			}
 		}
+		//return color if one baunce to avoid black preview
 		if (settings.maxdepth == 1) {
 			return   ray.attenuation;
 		}
@@ -67,13 +69,12 @@ public:
 	}
 
 private:
-
 	//hit info
 	Vec3 uv;
 	Tri triangle;
 	float distance;
 	int traversalcount = 0;
-	//intersect wolrd
+	//intersect bvh
 	__device__ bool intersect(Ray ray) {
 		//minimum distance so far
 		float mindist = 100000;
@@ -104,7 +105,6 @@ private:
 						}
 
 					}
-
 				}
 				index = currentnode.hitnode; //go down tree
 			}
@@ -115,7 +115,7 @@ private:
 		}
 		return ishit;
 	}
-	//get tringle normal from hit
+	//interpolate normal and tex coords
 	__device__ Vec3 getnormal() {
 		return Vec3(1.0f - uv[0] - uv[1]) * triangle.verts[0].norm + Vec3(uv[0]) * triangle.verts[1].norm + Vec3(uv[1]) * triangle.verts[2].norm;
 	}

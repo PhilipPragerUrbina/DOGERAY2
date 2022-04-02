@@ -3,10 +3,9 @@
 #include <algorithm>
 #include "tri.hpp"
 
-//bvhnode struct
 struct bvhnode {
 public:
-	//boundning box of node
+	//bounding box of node
 	boundingbox box;
 	// is a leaf node
 	bool isleaf = false;
@@ -21,7 +20,6 @@ public:
 	//axis aligned bounding box (inline since it is called a huge number of times)
 	inline __device__ bool testbox(Ray ray) {
 		//based on pixar AABB function
-		//tmin and tmax still need to be tweaked for max performance
 		float tmin = (box.min[0] - ray.origin[0]) / ray.dir[0];
 		float tmax = (box.max[0] - ray.origin[0]) / ray.dir[0];
 		//t_min must be less than max
@@ -48,12 +46,10 @@ public:
 		}
 		return true;
 	}
-
 };
 
-
 //helper fucntioons for bvh building
-//function for computing the boudning box of multiple objects
+//function for computing the bounding box of multiple objects
 boundingbox arrayboundingbox(std::vector<Tri>& in) {
 
 	boundingbox out = in[0].getboundingbox();
@@ -66,7 +62,6 @@ boundingbox arrayboundingbox(std::vector<Tri>& in) {
 	return out;
 }
 
-//bounding volume hearchy class class
 class Bvhtree {
 public:
 	Bvhtree(std::vector<Tri> in) {
@@ -93,7 +88,7 @@ private:
 	std::vector<Tri> traingles;
 	//array of nodes to be put on gpu later
 	std::vector<bvhnode> nodes;
-	//recusibly split bvh into nodes until there are elaf nodes with one triangle
+	//recursivley split bvh into nodes until there are elaf nodes with one triangle
 	int recursivesplit(std::vector<Tri> remaining) {
 		//node is created on the stack since it will be stored on an array later and passed to the gpu
 		bvhnode parent;
@@ -121,10 +116,7 @@ private:
 		//sort and split by center of bounding box
 		std::nth_element(remaining.begin(),remaining.begin()+mid, remaining.end(),
 			[axis](const Tri& a, const Tri& b) {
-				int axisnotconst = axis;
-				Tri anotconst = a;
-				Tri bnotconst = b;
-				return anotconst.box.center[axisnotconst] < bnotconst.box.center[axisnotconst];
+				return a.box.center[axis] < b.box.center[axis];
 			});
 		//split current triangles
 		std::vector<Tri> a;

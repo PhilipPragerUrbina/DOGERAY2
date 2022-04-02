@@ -1,10 +1,10 @@
 #pragma once
 #include "camera.hpp"
 #include "texture.hpp"
-//information taht shpuld be passed to GPU for ray tracing
+//information that should be passed to GPU for ray tracing
 struct config {
 public:
-	//number of bvh nodes for alloc
+	//number of bvh nodes and mats for alloc
 	int bvhsize;
 	int matsize;
 	//image width and height
@@ -25,7 +25,6 @@ public:
 	bool saveimage = false;
 	//max bounces
 	int maxdepth = 3;
-
 	//# of samaples taken
 	int samples = 0;
 };

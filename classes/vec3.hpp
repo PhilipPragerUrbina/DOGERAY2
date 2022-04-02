@@ -23,7 +23,7 @@ public:
         values[1] = 0;
         values[2] = 0;
     }
-    //copy constructors
+    //copy constructor
     __host__ __device__  Vec3(const Vec3& b) {
         values[0] = b.values[0];
         values[1] = b.values[1];
@@ -58,13 +58,20 @@ public:
        }
         return out;
     }
-    //reflect vector ober other vector(normal)
+    //reflect vector over other vector(normal)
     __host__ __device__ Vec3 reflected(const Vec3& n) const  {
         return Vec3(*this) - (n * 2.0 * dot(n));
     }
     //change order
     __host__ __device__ Vec3 inverse() const {
         return Vec3(values[2], values[1], values[0]);
+    }
+    //get largest axis
+    __host__ __device__ int extent() const {
+        int max = 0;
+        if (values[1] > values[0]) { max = 1; }
+        if (values[2] > values[0] && values[2] > values[1]) { max = 2; }
+        return max;
     }
 
     //gets minimum and max values of two vectors
@@ -92,12 +99,7 @@ public:
         return Vec3(values[0] / b.values[0],values[1] / b.values[1],values[2] / b.values[2]);
     }
     __host__ __device__ Vec3 operator-() const { return Vec3(-values[0], -values[1], -values[2]); }
-    __host__ __device__ int extent() const{
-        int max = 0;
-        if (values[1] > values[0]) { max = 1; }
-        if (values[2] > values[0] && values[2] > values[1]) { max = 2; }
-        return max;
-    }
+
 
     //print Vec3 to console for debugging
     void print() const{
@@ -105,7 +107,7 @@ public:
     }
 };
 
-//cout overload fr printing Vec3 c++ way
+//cout overload for printing Vec3 c++ way
 std::ostream& operator<<(std::ostream& os,  Vec3& a)
 {
     os << "(" << a[0] << "," << a[1] << "," << a[2] << ")";

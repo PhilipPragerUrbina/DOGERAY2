@@ -1,6 +1,5 @@
 #pragma once
 #include "Vec3.hpp"
-//ray class
 class Ray {
 public:
 	//attributes
@@ -15,6 +14,6 @@ public:
 
 	//get ray postion from distance
 	__device__ Vec3 at(float distance) {
-		return origin + (Vec3(distance) * dir);
+		return origin + (dir * distance);
 	}	
 };

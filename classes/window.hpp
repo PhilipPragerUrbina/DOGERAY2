@@ -81,8 +81,6 @@ public:
         filename = filename + ".jpg";
         //create surface
         SDL_Surface* tempsurface = SDL_CreateRGBSurface(0, width, height, 32, 0x00ff0000, 0x0000ff00, 0x000000ff, 0xff000000);
-
-     
         //transfer pixels to surface
         SDL_RenderReadPixels(SDLrenderer, NULL, SDL_PIXELFORMAT_ABGR8888 , tempsurface->pixels, tempsurface->pitch);
         //save as JPG. Formally BMP but jpg is easier to share

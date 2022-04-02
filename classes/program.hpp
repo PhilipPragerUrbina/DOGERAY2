@@ -4,17 +4,16 @@
 #include "gui.hpp"
 #include "tracekernel.hpp"
 #include "bvhtree.hpp"
-
-//multithreading stuff
 #include<thread>
+
 //for checking if thread finished
 bool threaddone = true;
-//render on spereate thread to not slow down program
+//render on spereate thread to not slow down program gui
 void render(config set, uint8_t* data, Window* win, Tracekernel* shader) {
     if(threaddone) {
         return;
     }
-    //get winbdow data to copy to
+    //get window data to copy to
     data = win->getTex();
     //render frame
     shader->render(data, set);
@@ -38,7 +37,7 @@ public:
     //geometry data
     bvhnode* finishedtree;
     Loader* file;
-    //tree is dynamically allocated to make sure it's data is not descucted before it can be put on the gpu
+    //data is dynamically allocated to make sure it's data is not destructed before it can be put on the gpu
     Bvhtree* tree;
     Mat* materials;
     //filename of open file
@@ -57,7 +56,7 @@ public:
         settings.backgroundtexture.destroy();
     }
 
-    //diplsay console intro title
+    //display console intro title
 	void displaytitle() {
          //The R is for correct multiline formatting
         std::cout << R"(
@@ -73,8 +72,9 @@ public:
         std::cout << "Find on github: https://github.com/PhilipPragerUrbina/DOGERAY2" << std::endl;
 	}
 
-    //open file and build tree
+  
     void loadfile(string filename) {
+        //open file and build tree
         file = new Loader(filename, &settings);
         file->loadGLTF();
         buildbvh();
@@ -125,6 +125,7 @@ public:
         settings.h = height;
         settings.w = width;
     }
+
     void runmainloop() {
         //setup kernel
         shader = new Tracekernel(settings, finishedtree, materials);
@@ -135,76 +136,51 @@ public:
       
         //main loop
         while (!gui->exit) {
-            //update settings with gui input
-           
+            //update settings with gui input    
             gui->update(&settings);
-           
-
             //check if render is done
             if (threaddone) {
                 //join thread
                 renderthread.join();
-
-                //set as noy done
+                //set as not done
                 threaddone = false;
-
                 //save render if specified in config from gui
                 if (settings.saveimage) {
                     win->saveimage(openfilename);
                     settings.saveimage = false;
                 }
-
-               
                 //get window size in case resized
                 win->getsize(&settings.w, &settings.h);
-             
                 //apply user modifier
                 settings.w *= settings.scale;
                 settings.h *= settings.scale;
-
                 if (settings.preview) {
                     settings.w *= 0.5;
                     settings.h *=0.5;
 
                 }
-
-                //make even
+                //make divisble by 8 for cuda blocks
                 settings.w = 8 * int(settings.w / 8);
                 settings.h = 8 * int(settings.h / 8);
-
-            
-            
-
-              
-            
                 if (prevw != settings.w || prevh != settings.h) {
-                    //resolution chnaged
+                    //resolution changed
+                    //update erverthing
                     shader->resize(settings);
                     win->resizeresolution(settings);
                     settings.cam.calcaspectratio(settings.w, settings.h);
                     prevw = settings.w;
                     prevh = settings.h;
+                    //settings samples to zero resets render
                     settings.samples = 0;
                 }
-
-
-              
                 config tempsettings = settings;
                 if (settings.preview) {
                     tempsettings.maxdepth = 1;
-                    //settings the samples to zero can provide a better preview editing experince. But there is extreme fuzzyness.
-                     //tempsettings.samples = 0;
                 }
-              
-
-
-
                 //start thread
                 renderthread = thread(render, tempsettings, data, win, shader);
                 //increment samples
-                settings.samples++;
-
-               
+                settings.samples++;    
            }
         }
         //wait for thread to finsih before exiting
@@ -217,6 +193,7 @@ private:
     //prev dimensions
     int prevw;
     int prevh;
+
     void buildbvh() {
         //create tree
         tree = new Bvhtree(file->loadedtris);

@@ -2,23 +2,23 @@
 #include "world.hpp"
 #include <chrono>
 #include <iostream>
-//comment and uncomment this to print render time to console. Normally disabled for max performance(les reialble IMGUI counter can be used instead),but is usful for testing
+//comment and uncomment this to print render time to console. Normally disabled for max performance,but is uesful for testing
 //#define recordspeed
 
-//the actual ray tarce kernel. It cannot be a member function
+//the actual kernel. It cannot be a member function
 __global__ void raytracekernel(uint8_t* image,World scene) {
 	//get indexes 
 	int x = blockIdx.x * blockDim.x + threadIdx.x;
 	int y = blockIdx.y * blockDim.y + threadIdx.y;
 	int w = (y * scene.settings.w + x) * 3;
-	
+	//init noise
 	Noise noise(x,y);
 	
 	//create randomized uv coords of image
 	float u = (x + noise.rand()) / (scene.settings.w - 1);
 	float v = (y + noise.rand())/ (scene.settings.h - 1);
 	
-	//gnerate ray
+	//gen ray
 	Ray currentray = scene.settings.cam.getray(u, v, noise.unitdisk());
 	//trace ray
 	Vec3 color = scene.color(currentray,noise);
@@ -44,7 +44,7 @@ public:
 	//status for error handling
 	cudaError_t status;
 	//threads per block. 
-	dim3 threadsPerBlock;
+	dim3 threadsperblock;
 
 	//constructor allocates memory and does setup
 	Tracekernel(config settings, bvhnode* geometry, Mat* materials) {
@@ -54,8 +54,8 @@ public:
 
 		//setup device
 		cudaGetDevice(&device);
-		threadsPerBlock = dim3(8, 8);
-		numBlocks = dim3(settings.w / threadsPerBlock.x, settings.h / threadsPerBlock.y);
+		threadsperblock = dim3(8, 8);
+		numblocks = dim3(settings.w / threadsperblock.x, settings.h / threadsperblock.y);
 
 		//allocate memory
 		imagesize = settings.h * settings.w * 3 * sizeof(uint8_t);
@@ -71,7 +71,7 @@ public:
 		if (status != cudaSuccess) { std::cerr << "error allocating materials on device \n"; return; }
 		std::cout << "GPU memory succesfully allocated \n";
 
-		//copy over normal geometry
+		//copy over data
 		status = cudaMemcpy(device_geometry, geometry, geosize, cudaMemcpyHostToDevice); 
 		if (status != cudaSuccess) { std::cerr << "error copying geometry on device \n"; return; }
 
@@ -88,8 +88,8 @@ public:
 		//create scene object
 		World scene(device_geometry, settings, device_materials);
 
-		//run kenrel
-		raytracekernel << <numBlocks, threadsPerBlock >> > (device_image, scene);
+		//run kernel
+		raytracekernel << <numblocks, threadsperblock >> > (device_image, scene);
 
 		//copy to host
 		cudaMemcpy(image, device_image, imagesize, cudaMemcpyDeviceToHost);
@@ -99,6 +99,7 @@ public:
 		rendertime();
 		#endif
 	}
+	//clean up matirials
 	void cleantextures() {
 		for (int i = 0; i < nummaterials; i++) {
 			materialstoclean[i].destroy();
@@ -112,7 +113,7 @@ public:
 		cudaFree(device_materials);
 	}
 
-	//check for errors afetr kenrel launch. Not doing very time for performance.
+	//check for errors afetr kernel launch. Use when kernel is displaying black.
 	void errorcheck() {
 		status = cudaGetLastError();
 		if (status != cudaSuccess){std::cerr << "kernel launch error: " << cudaGetErrorString(status) << "\n";}
@@ -122,36 +123,34 @@ public:
 	void rendertime() {
 		std::cout << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
 	}
+	//resize kernel
 	void resize(config settings) {
+		//free output
 		cudaFree(device_image);
-		threadsPerBlock = dim3(8, 8);
-		numBlocks = dim3(settings.w / threadsPerBlock.x, settings.h / threadsPerBlock.y);
+		//set threads
+		threadsperblock = dim3(8, 8);
+		numblocks = dim3(settings.w / threadsperblock.x, settings.h / threadsperblock.y);
+		//re alloc
 		imagesize = settings.h * settings.w * 3 * sizeof(uint8_t);
 		status = cudaMalloc((void**)&device_image, imagesize);
 		if (status != cudaSuccess) { std::cerr << "error editing output image on device \n"; return; }
 	}
 
 private:
-
-	//number of blocks,calculated at runtime
-	dim3 numBlocks;
-
+	//number of blocks based off of # of threads
+	dim3 numblocks;
 	//cuda device number
 	int device = -1;
-
 	//image data
 	size_t imagesize;
 	uint8_t* device_image = 0;
-
 	//geometry data
 	bvhnode* device_geometry = 0;
 	Mat* device_materials = 0;
-
 	//for profiling
 	std::chrono::steady_clock::time_point begin;
 	std::chrono::steady_clock::time_point end;
-
-	//for cleanup of texture
+	//for cleanup of textures
 	int nummaterials;
 	Mat* materialstoclean;
 };

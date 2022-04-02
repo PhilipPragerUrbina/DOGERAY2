@@ -1,27 +1,24 @@
 #pragma once
 #include "mat.hpp"
+
 //vertex struct.
 struct vertex {
 	//vertex position
 	Vec3 pos;
 	//vertex normal
 	Vec3 norm;
-	//tex coord. ignore z for now
+	//tex coord. ignore z 
 	Vec3 tex;
 };
-//boundning box struct
+//bounding box struct
 struct boundingbox {
 	Vec3 max{ 10000000000000 };
 	Vec3 min{ -1000000000000 };
 	Vec3 center;
-	
 };
 
-//tiangle class
 class Tri {
 public:
-
-
 	boundingbox box;
 	vertex verts[3];
 	int materialid = 0;
@@ -36,37 +33,32 @@ public:
 		return box;
 	}
 	
-
+	//triangle intersection function
 	__device__ bool hit(Ray ray, float& dist, Vec3& uv) {
-
 		Vec3 v0v1 = verts[1].pos - verts[0].pos;
 		Vec3 v0v2 = verts[2].pos - verts[0].pos;
 		Vec3 pvec = ray.dir.cross(v0v2);
 		float det = v0v1.dot(pvec);
 
 		//floating point error range. Larger for larger objects to avoid speckling problem.
-		//TODO either create system for choosig n epslon or  make file coords smaller
 		const float epsilon = 0.000001f;
 		if (fabs(det) < epsilon) return false;
 
-		float invDet = 1.0f / det;
+		float invdet = 1.0f / det;
 		Vec3 tvec = ray.origin - verts[0].pos;
-		uv[0] = tvec.dot(pvec) * invDet;
+		uv[0] = tvec.dot(pvec) * invdet;
 		if (uv[0] < 0.0f || uv[0] > 1.0f) return false;
 
 		Vec3 qvec = tvec.cross(v0v1);
-		uv[1] = ray.dir.dot(qvec) * invDet;
+		uv[1] = ray.dir.dot(qvec) * invdet;
 		if (uv[1] < 0.0f || uv[0] + uv[1] > 1.0f) return false;
 
-		dist = v0v2.dot(qvec) * invDet;
+		dist = v0v2.dot(qvec) * invdet;
 		const float delta = 0.0001f;
-		if (dist > delta) //check if in small range. this si to stop ray from intersecting with traingle again after bounce.
+		if (dist > delta) //check if in small range. this is to stop ray from intersecting with traingle again after bounce.
 		{
 			return true;
 		}
-		else {
-			return false;
-		}
-
+		return false;	
 	}
 };
