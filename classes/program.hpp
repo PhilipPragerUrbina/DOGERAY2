@@ -68,7 +68,7 @@ public:
    \:\/.:| |\:\_\ \ \\:\_\ \ \  \:\____/\\ \ `\ \ \\:.\ \  \ \ \::\ \    \:\____/\ 
     \____/_/ \_____\/ \_____\/   \_____\/ \_\/ \_\/ \__\/\__\/  \__\/     \_____\/  )" << std::endl;
 
-        std::cout << "V.2.0.0   by Philip Prager Urbina   2022" << std::endl;
+        std::cout << "V.2.0.1   by Philip Prager Urbina   2022" << std::endl;
         std::cout << "Find on github: https://github.com/PhilipPragerUrbina/DOGERAY2" << std::endl;
 	}
 
