@@ -15,6 +15,7 @@ Capable of 4k rendering a few samples per second. Has been tested on scenes with
 
 DOGERAY2 is a completely new piece of software from the original Dogeray I wrote a very long time ago. It only keeps the name since I could not come up with a better one.
 
+Check out the Wiki for more info on file formats, common issues, usage, and decisions.
 
 
 ## References
