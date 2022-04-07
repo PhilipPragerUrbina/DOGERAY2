@@ -13,6 +13,52 @@ DOGERAY2 is an unbaised somewhat-interactive GPU path tracer written in CUDA C++
 
 Capable of 4k rendering a few samples per second. Has been tested on scenes with over 3 millions triangles.
 
+
+Current features WIP:
+* Responsive GUI with many controls
+* Fast GPU accelerated rendering
+* Full unbaised path tracing
+* JPG image saving
+* Window resizing
+* Interactve preview
+* BVH view
+* Stackless BVH traversal
+* Rendering huge amounts of triangles
+* Multisampling with consistent sampling pattern
+* BVH acceleration structure
+* Depth of field
+* Opens GLTF files
+* custom icon in release
+* PBR matirials
+* Textures
+* Smooth shading
+* Image scaling
+* Emmisive Matirials
+* Backround images
+* GLTF cameras and transfromations, both matrix and TRS
+* Live render window
+* Memory efficient
+* Multithreaded UI
+* And more
+
+
+learnings WIP:
+* Polymorphism
+* Serialization
+* Compiler Optimization
+* Using specifications
+* Casting types, working with images
+* Object oreinted c++
+* Using GUI toolkits
+* managing program lifecycle and memory
+* Matrix and Vector transformations
+* Writing safe classes
+* Licencing
+* Extreme debugging
+
+Licences WIP:
+Can be found in library folders.
+
 DOGERAY2 is a completely new piece of software from the original Dogeray I wrote a very long time ago. It only keeps the name since I could not come up with a better one.
 
 Check out the Wiki for more info on file formats, common issues, usage, and decisions.
