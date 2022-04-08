@@ -1,7 +1,8 @@
 # DOGERAY2
-DOGERAY2 is an unbaised somewhat-interactive GPU path tracer written in CUDA C++.
-DOGERAY2 is a completely new piece of software from the original Dogeray I wrote a very long time ago. It only keeps the name since I could not come up with a better one.
-![ico](https://user-images.githubusercontent.com/72355251/162347920-82194f84-d3ca-476a-8031-d4dca260b2da.png)
+DOGERAY2 is an unbaised somewhat-interactive GPU path tracer written in CUDA C++ that opens GLTF 2.0 files.
+
+![icon](https://user-images.githubusercontent.com/72355251/162350170-a91185f6-28b2-4b1b-a4b1-8ba6ef63fced.png)
+
 
 ## Gallery
 ![helmet2 glb_](https://user-images.githubusercontent.com/72355251/161661800-df3f2fca-2034-46a6-b702-e8c6b82af441.jpg)
@@ -16,6 +17,7 @@ DOGERAY2 is a completely new piece of software from the original Dogeray I wrote
 
 ## Features
 Capable of 4k rendering a few samples per second. Has been tested on scenes with over 3 millions triangles.
+
 Some of the current features:
 * Responsive GUI with many controls and live render window
 * Fully path traced fast GPU accelerated rendering
@@ -42,6 +44,7 @@ Check out the Wiki for more info on file formats, common issues, usage, and deci
 ## Dependecies:
 1. CUDA
 2. SDL2(Included in release)
+
 (Also requires fairly recent Nvidia GPU to run)
 
 
@@ -79,3 +82,5 @@ Links to the libraries can be found in the [wiki page](https://github.com/Philip
 The rendering algorithm is based of of Ray Tracing in One Weekend whcih is amazing for learning about how ray tracing works. The stackless bvh traversal algorithm at the heart of the engine is based off of Hachisuka's amazing work.
  * [Ray Tracing in One Weekend Series by Peter Shirley](https://raytracing.github.io/)
  * [Implementing a practical rendering system using GLSL by Toshiya Hachisuka](https://cs.uwaterloo.ca/~thachisu/tdf2015.pdf) 
+ ## Why 2
+ DOGERAY2 is a completely new piece of software from the original Dogeray that I wrote a very long time ago. It only keeps the name since I could not come up with a better one.
