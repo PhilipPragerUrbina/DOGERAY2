@@ -11,7 +11,6 @@ Find the full size gallery in the [wiki](https://github.com/PhilipPragerUrbina/D
 
 ## Features
 Capable of 4k rendering a few samples per second. Has been tested on scenes with over 15 million triangles.
-
 Some of the current features:
 * Responsive GUI with many controls and live render window
 * Fully path traced fast GPU accelerated rendering
@@ -26,6 +25,14 @@ Some of the current features:
 * Opens GLTF files with cameras and transformations
 * Multithreaded UI
 
+User interface:
+ ![gui](https://user-images.githubusercontent.com/72355251/162583963-e8663e4b-5189-4469-9e63-9efa44b36539.JPG)
+
+Interactive render preview:
+![preview](https://user-images.githubusercontent.com/72355251/162583979-1e1c9e95-cdbd-494f-9e96-c7bf035a0fee.JPG)
+
+Bounding volume hierachy view:
+![sanfoeerd3 glb](https://user-images.githubusercontent.com/72355251/162584006-dba195ad-08f9-415b-8fa9-f92ea05f610a.jpg)
 
 
 
