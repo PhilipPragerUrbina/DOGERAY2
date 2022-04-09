@@ -76,5 +76,5 @@ Links to the libraries can be found in the [wiki page](https://github.com/Philip
 The rendering algorithm is based of of Ray Tracing in One Weekend whcih is amazing for learning about how ray tracing works. The stackless bvh traversal algorithm at the heart of the engine is based off of Hachisuka's amazing work.
  * [Ray Tracing in One Weekend Series by Peter Shirley](https://raytracing.github.io/)
  * [Implementing a practical rendering system using GLSL by Toshiya Hachisuka](https://cs.uwaterloo.ca/~thachisu/tdf2015.pdf) 
- ## Why 2
+ ## Why the name?
  DOGERAY2 is a completely new piece of software from the original Dogeray that I wrote a very long time ago. It only keeps the name since I could not come up with a better one.
