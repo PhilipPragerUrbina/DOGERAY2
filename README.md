@@ -14,7 +14,7 @@ Capable of 4k rendering a few samples per second. Has been tested on scenes with
 Some of the current features:
 * Responsive GUI with many controls and live render window
 * Fully path traced fast GPU accelerated rendering
-* JPG image saving
+* Multiple JPG image saving
 * Window resizing and image scaling
 * Interactve and BVH preview
 * BVH acceleration strucutre Stackless BVH traversal
