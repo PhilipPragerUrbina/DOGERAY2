@@ -1,5 +1,5 @@
 # DOGERAY2
-DOGERAY2 is an unbiased somewhat-interactive GPU path tracer written in CUDA C++ that opens GLTF 2.0 files.
+DOGERAY2 is an unbiased interactive GPU path tracer written in CUDA C++ that opens GLTF 2.0 files.
 
 ![icon](https://user-images.githubusercontent.com/72355251/162350170-a91185f6-28b2-4b1b-a4b1-8ba6ef63fced.png)
 
