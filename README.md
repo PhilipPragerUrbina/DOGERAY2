@@ -14,9 +14,12 @@ DOGERAY2 is an unbaised somewhat-interactive GPU path tracer written in CUDA C++
 ![emEmsis glb](https://user-images.githubusercontent.com/72355251/161662123-0e2f2a36-07ac-458d-a53f-ac24bf7c0262.jpg)
 ![sanfeord3 glb](https://user-images.githubusercontent.com/72355251/161662151-00874970-4682-4cf4-b90b-a47bcc91224e.jpg)
 ![sanfoeerd3 glb](https://user-images.githubusercontent.com/72355251/161662170-362b9774-f766-42c8-81b0-30444fd884d6.jpg)
+![15mil glb](https://user-images.githubusercontent.com/72355251/162549141-8ffedc0c-7ed8-4272-a1c3-00df69a64f41.jpg)
+![15mil glb__](https://user-images.githubusercontent.com/72355251/162549143-1e89f04b-2784-46c4-9563-fba4e2438b30.jpg)
+![15mil glb_](https://user-images.githubusercontent.com/72355251/162549147-83afc6f5-67e3-4336-bb46-95769e406b97.jpg)
 
 ## Features
-Capable of 4k rendering a few samples per second. Has been tested on scenes with over 3 millions triangles.
+Capable of 4k rendering a few samples per second. Has been tested on scenes with over 15 million triangles.
 
 Some of the current features:
 * Responsive GUI with many controls and live render window
