@@ -1,5 +1,5 @@
 # DOGERAY2
-DOGERAY2 is an unbaised somewhat-interactive GPU path tracer written in CUDA C++ that opens GLTF 2.0 files.
+DOGERAY2 is an unbiased somewhat-interactive GPU path tracer written in CUDA C++ that opens GLTF 2.0 files.
 
 ![icon](https://user-images.githubusercontent.com/72355251/162350170-a91185f6-28b2-4b1b-a4b1-8ba6ef63fced.png)
 
@@ -10,7 +10,7 @@ DOGERAY2 is an unbaised somewhat-interactive GPU path tracer written in CUDA C++
 Find the full size gallery in the [wiki](https://github.com/PhilipPragerUrbina/DOGERAY2/wiki)
 
 ## Features
-Capable of 4k rendering a few samples per second. Here is a scene with over 15 millions triangles:
+Capable of 4k rendering a few samples per second. Here is a scene with over 15 million triangles:
 ![15mil glb](https://user-images.githubusercontent.com/72355251/162584919-96f79e24-76ce-4963-9f6f-f5905a8c823a.jpg)
 
 
@@ -20,11 +20,11 @@ Some of the current features:
 * Multiple JPG image saving
 * Window resizing and image scaling
 * Interactve and BVH preview
-* BVH acceleration strucutre Stackless BVH traversal
+* BVH acceleration structure Stackless BVH traversal
 * Depth of field 
-* PBR and emmisive matirials with Textures
+* PBR and emmissive materials with Textures
 * Smooth shading
-* Backround images
+* Background images
 * Opens GLTF files with cameras and transformations
 * Multithreaded UI
 
@@ -37,10 +37,11 @@ Interactive render preview:
 Bounding volume hierarchy view:
 ![sanfoeerd3 glb](https://user-images.githubusercontent.com/72355251/162584006-dba195ad-08f9-415b-8fa9-f92ea05f610a.jpg)
 
-Glossy and emmisive materials, depth fo field:
+Glossy and emmisive materials, Depth of field:
 ![helmet2 glb_](https://user-images.githubusercontent.com/72355251/162585121-f3149d6e-6a7e-4fe8-bc15-10ffa39a7c5f.jpg)
 ![MetalRoughSpheres glb](https://user-images.githubusercontent.com/72355251/162585490-2f2cfeae-60f5-4ea9-9e7a-2327152a4e19.jpg)
 
+Quick video [demo](https://youtu.be/OJ85TVysA_E)
 
 
 
@@ -51,19 +52,19 @@ Glossy and emmisive materials, depth fo field:
 3. If your model is not rendering correctly, make sure the scale of the model is not overly huge(>1000 units wide).
 Check out the Wiki for more info on file formats, common issues, usage, and decisions.
 
-## Dependecies:
+## Dependencies:
 1. CUDA
 2. SDL2(Included in release)
 
-(Also requires fairly recent Nvidia GPU to run)
+(Also requires a fairly recent Nvidia GPU to run)
 
 
 ## Some learnings from this project:
 * Polymorphism and Serialization
-* Power of Compiler Optimization
-* Using specifications to figure out how to utilize industry standar files
+* Power of compiler Optimization
+* Using specifications to figure out how to utilize industry standard files
 * Casting types and working with raw image data
-* Organizing Object oreinted c++
+* Organizing Object oriented  c++
 * Using GUI toolkits
 * Managing program lifecycle and memory
 * Matrix and Vector transformations
@@ -71,8 +72,8 @@ Check out the Wiki for more info on file formats, common issues, usage, and deci
 * Markdown and Licencing on Github
 * Extreme debugging
 
-## Licences:
-Full licences can also be found in libraries folder.
+## Licenses:
+Full licenses can also be found in libraries folder.
 * Tinygltf: Copyright (c) 2017 Syoyo Fujita, Aurélien Chatelain and many contributors
   * json.hpp : Copyright (c) 2013-2017 Niels Lohmann. MIT license.
   * base64 : Copyright (C) 2004-2008 René Nyffenegger
@@ -89,7 +90,7 @@ Links to the libraries can be found in the [wiki page](https://github.com/Philip
   
 
 ## References
-The rendering algorithm is based of of Ray Tracing in One Weekend whcih is amazing for learning about how ray tracing works. The stackless bvh traversal algorithm at the heart of the engine is based off of Hachisuka's amazing work.
+The rendering algorithm is based on Ray Tracing in One Weekend which is amazing for learning about computer graphics. The stackless BVH traversal algorithm at the heart of the engine is based on Hachisuka's amazing work.
  * [Ray Tracing in One Weekend Series by Peter Shirley](https://raytracing.github.io/)
  * [Implementing a practical rendering system using GLSL by Toshiya Hachisuka](https://cs.uwaterloo.ca/~thachisu/tdf2015.pdf) 
  ## Why the name?
