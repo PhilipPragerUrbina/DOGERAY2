@@ -22,7 +22,7 @@ Some of the current features:
 * Interactve and BVH preview
 * BVH acceleration structure stackless BVH traversal
 * Depth of field 
-* PBR and emmissive materials with textures
+* PBR and emissive materials with textures
 * Smooth shading
 * Background images
 * Opens GLTF files with cameras and transformations
@@ -37,7 +37,7 @@ Interactive render preview:
 Bounding volume hierarchy view:
 ![sanfoeerd3 glb](https://user-images.githubusercontent.com/72355251/162584006-dba195ad-08f9-415b-8fa9-f92ea05f610a.jpg)
 
-Glossy and emmisive materials, Depth of field:
+Glossy and emissive materials, Depth of field:
 ![helmet2 glb_](https://user-images.githubusercontent.com/72355251/162585121-f3149d6e-6a7e-4fe8-bc15-10ffa39a7c5f.jpg)
 ![MetalRoughSpheres glb](https://user-images.githubusercontent.com/72355251/162585490-2f2cfeae-60f5-4ea9-9e7a-2327152a4e19.jpg)
 
