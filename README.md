@@ -20,9 +20,9 @@ Some of the current features:
 * Multiple JPG image saving
 * Window resizing and image scaling
 * Interactve and BVH preview
-* BVH acceleration structure Stackless BVH traversal
+* BVH acceleration structure stackless BVH traversal
 * Depth of field 
-* PBR and emmissive materials with Textures
+* PBR and emmissive materials with textures
 * Smooth shading
 * Background images
 * Opens GLTF files with cameras and transformations
@@ -49,22 +49,22 @@ Quick video [demo](https://youtu.be/OJ85TVysA_E)
 ## Quick usage guide:
 1. To open a file, just right click on a GLTF or GLB file and open with DOGERAY2.
 2. To add a background just put an image file named "background" in the same directory where you are opening the file from.
-3. If your model is not rendering correctly, make sure the scale of the model is not overly huge(>1000 units wide).
+3. If your model is not rendering correctly, make sure the scale of the model is not overly huge (>1000 units wide).
 Check out the Wiki for more info on file formats, common issues, usage, and decisions.
 
 ## Dependencies:
 1. CUDA
-2. SDL2(Included in release)
+2. SDL2 (Included in release)
 
 (Also requires a fairly recent Nvidia GPU to run)
 
 
 ## Some learnings from this project:
-* Polymorphism and Serialization
-* Power of compiler Optimization
+* Polymorphism and serialization
+* Power of compiler optimization
 * Using specifications to figure out how to utilize industry standard files
 * Casting types and working with raw image data
-* Organizing Object oriented  c++
+* Organizing Object oriented c++
 * Using GUI toolkits
 * Managing program lifecycle and memory
 * Matrix and Vector transformations
@@ -80,7 +80,7 @@ Full licenses can also be found in libraries folder.
 * Imgui: Copyright (c) 2014-2022 Omar Cornut
 ### Other Libraries:
 * CUDA
-* STB_image and STB_image write
+* STB_image and STB_image_write
 * SDL2
 * Linalg
 
